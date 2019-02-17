@@ -1,30 +1,30 @@
-import sParagraph from '@/components/sections/sParagraph'
-import sTable from '@/components/sections/sTable'
-import sTitle from '@/components/sections/sTitle'
-import sHeader from '@/components/sections/sHeader'
-import sList from '@/components/sections/sList'
+import SectionParagraph from '@/components/sections/SectionParagraph'
+import SectionTable from '@/components/sections/SectionTable'
+import SectionTitle from '@/components/sections/SectionTitle'
+import SectionHeader from '@/components/sections/SectionHeader'
+import SectionList from '@/components/sections/SectionList'
 
 const sectionConfig = [
   {
     type: 'paragraph',
     default: true,
-    component: sParagraph,
+    component: SectionParagraph,
   },
   {
     type: 'table',
-    component: sTable,
+    component: SectionTable,
   },
   {
     type: 'header',
-    component: sHeader,
+    component: SectionHeader,
   },
   {
     type: 'list',
-    component: sList,
+    component: SectionList,
   },
   {
     type: 'title',
-    component: sTitle,
+    component: SectionTitle,
   },
 ]
 

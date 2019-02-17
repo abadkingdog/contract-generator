@@ -1,0 +1,6 @@
+.ui.label {
+  &.huge {
+    padding: 0.4em 0.833em;
+    font-weight: normal;
+  }
+}

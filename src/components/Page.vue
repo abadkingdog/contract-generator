@@ -1,29 +1,92 @@
 <template>
   <div class="paper">
-    <div class="paper-content">
+    <div class="paper-content" :style="configuredStyles">
       <Switcher
         v-for="(section, index) in sections"
-        :type="section"
         :key="index"
+        :type="section"
+        @updateData="getSectionData"
       />
+    </div>
+    <div class="metadata">
+      <button @click="convertToImage()">
+        convert
+      </button>
+      <pre><code>{{ configuredStyles }}</code></pre>
+      <p><strong>SectionsData:</strong></p>
+      <pre><code>{{ sectionsData }}</code></pre>
     </div>
   </div>
 </template>
 
 <script>
+import shuffle from 'lodash/shuffle'
+import coordMixin from '@/mixins/coords'
+import htmlToImageMixin from '@/mixins/htmlToImage'
 import Switcher from './Switcher'
 
 export default {
-  name: 'page',
+  name: 'Page',
+  mixins: [coordMixin, htmlToImageMixin],
+
   components: {
     Switcher
   },
+
   props: {
-    sections: {
-      type: Array,
-      default: () => []
+    sections: { type: Array, default: () => ([]) },
+    order: { type: Number, default: 1 },
+    settings: {
+      type: Object,
+      default: () => ({
+        fontFamilies: () => ({})
+      })
     },
+    updatePageData: { type: Function, default: () => {} }
   },
+
+  data: () => ({
+    selectedFF: [{ name: 'sans-serif' }],
+    sectionsData: []
+  }),
+
+  computed: {
+    configuredStyles() {
+      return {
+        'font-family': this.selectedFF[0]
+      }
+    }
+  },
+
+  mounted() {
+    this.selectedFF = shuffle(this.settings.fontFamilies)
+  },
+
+  methods: {
+    /*
+      create list of data
+    // @this.box - coords of page
+    // @sectionCoords - coords of segment
+    */
+    getSectionData({ sectionCoords: { top, right, bottom, left }, id, type }) {
+      const coords = {
+        top: top - this.box.top,
+        bottom: bottom - this.box.top,
+        right: right - this.box.left,
+        left: left - this.box.left,
+      }
+      this.sectionsData.push({ id, type, coords })
+    }
+  },
+
+  watch: {
+    sectionsData: {
+      deep: true,
+      handler(val) {
+        this.$emit('updatePageData', { sections: val, order: this.order, fontFamily: this.selectedFF[0] })
+      }
+    }
+  }
 }
 </script>
 
@@ -50,6 +113,17 @@ export default {
     height: @FORMAT_A4_HEIGHT - @FORMAT_A4_OFFSET_TOP - @FORMAT_A4_OFFSET_BOTTOM;
     margin: @FORMAT_A4_OFFSET_TOP @FORMAT_A4_OFFSET_LEFT @FORMAT_A4_OFFSET_BOTTOM @FORMAT_A4_OFFSET_LEFT;
     overflow: hidden;
+  }
+  .metadata {
+    background: #ffff0029;
+    position: absolute;
+    left: 101%;
+    top: 0;
+    font-size: 10px;
+    padding: 10px;
+    width: 300px;
+    max-height: @FORMAT_A4_HEIGHT;
+    overflow-y: auto;
   }
 }
 </style>

@@ -5,27 +5,12 @@
 </template>
 
 <script>
-import Contract from './components/Contract'
+import Contract from './pages/Contract'
 
 export default {
-  name: 'app',
+  name: 'App',
   components: {
     Contract,
   }
 }
 </script>
-
-<style>
-* {
-  border: 0;
-  margin: 0;
-  padding: 0;
-}
-#app {
-  font-family: Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-</style>

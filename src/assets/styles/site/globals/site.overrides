@@ -1,0 +1,55 @@
+/*-------------------
+    Page
+--------------------*/
+
+// hook for jumping scrollbar
+html {
+  margin-left: ~"calc(100vw - 100%)";
+}
+
+#app {
+  height: 100%;
+}
+
+/*-------------------
+    Text Content
+--------------------*/
+
+/* Colors */
+
+.text-light-color {
+  color: @lightTextColor;
+}
+
+.text-normal-color {
+  color: @darkTextColor;
+}
+
+.text-success {
+  color: @successColor;
+}
+
+.text-info {
+  color: @linkColor;
+}
+
+/* Alignment */
+
+.text {
+  &-right {
+    text-align: right;
+  }
+  &-left {
+    text-align: left !important;
+  }
+  &-center {
+    text-align: center !important;
+  }
+}
+
+.ui.danger,
+.ui.danger.button {
+  color: #fff;
+  background-color: @danger;
+  border-color: @danger;
+}

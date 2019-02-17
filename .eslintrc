@@ -1,0 +1,67 @@
+{
+  "root": true,
+  "parserOptions": {
+    "parser": "babel-eslint",
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true
+  },
+  // https://github.com/standard/standard/blob/master/docs/RULES-en.md
+  "extends": [
+    "airbnb-base",
+    "plugin:vue/recommended"
+  ],
+  // required to lint *.vue files
+  "plugins": [
+    "vue"
+  ],
+  // add your custom rules here
+  "rules": {
+    "import/prefer-default-export": 0,
+    "import/extensions": 0,
+    "import/no-unresolved": 0,
+    "no-unused-expressions": 0,
+    "func-names": 0,
+    "import/no-extraneous-dependencies": ["false", { "devDependencies": true }],
+    "max-len": [
+      2,
+      120,
+      4,
+      {
+        "ignoreComments": true,
+        "ignoreUrls": true,
+        "ignorePattern": "^\\s*var\\s.+=\\s*require\\s*\\("
+      }
+    ],
+    "comma-dangle": 0,
+    "no-param-reassign": 0,
+    "eqeqeq": ["error", "always"],
+    "no-plusplus": 0,
+    "semi": ["error", "never"],
+    "vue/singleline-html-element-content-newline": ["error", {
+      "ignoreWhenNoAttributes": true,
+      "ignoreWhenEmpty": true,
+      "ignores": ["pre", "textarea", "h1", "h2", "h3", "a", "label", "span"]
+    }],
+    "vue/order-in-components": 0,
+    "vue/max-attributes-per-line": ["error", {
+      "singleline": 2,
+      "multiline": {
+        "max": 1,
+        "allowFirstLine": false
+      }
+    }],
+    "no-console": 0,
+    "no-empty": 0,
+    "object-curly-newline": 0
+  }
+//  globals: {
+//    jest: true,
+//    describe: true,
+//    it: true,
+//    expect: true,
+//    beforeEach: true
+//  }
+}

@@ -1,0 +1,36 @@
+@borderRadius: 1px;
+
+.ui.cards > .card,
+.ui.card {
+  &.full {
+    width: 100%;
+  }
+
+  &.custom {
+    box-shadow: none;
+
+    .content {
+      box-shadow: @boxShadow;
+      border-radius: @borderRadius !important;
+      transition: @transition;
+    }
+
+    .image {
+      box-shadow: @boxShadow;
+      border-radius: @borderRadius !important;
+      margin-bottom: .5em;
+    }
+
+    &:hover {
+      box-shadow: none;
+    }
+  }
+}
+
+button.ui.card {
+  cursor: pointer;
+
+  &:hover, &.selected {
+    box-shadow: 0px 1px 3px 0px @blue, 0px 0px 0px 1px @blue;
+  }
+}

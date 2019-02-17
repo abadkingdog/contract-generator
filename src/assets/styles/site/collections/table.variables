@@ -1,0 +1,3 @@
+@headerBackground: @white;
+@border: none;
+@headerColor: @darkTextColor;
