@@ -113,6 +113,7 @@ export default {
 .page {
   position: relative;
   display: inline-block;
+  margin-right: 1rem;
 }
 .paper {
   margin: 0 0 @FORMAT_A4_MARGIN_BOTTOM;
@@ -132,7 +133,7 @@ export default {
   }
 }
 .metadata {
-  background: #ffff0029;
+  background: #ffffe0;
   position: absolute;
   left: 101%;
   top: 0;
@@ -141,6 +142,7 @@ export default {
   width: 300px;
   max-height: @FORMAT_A4_HEIGHT;
   overflow-y: auto;
+  z-index: 1;
 }
 .preview {
   width: 100px;

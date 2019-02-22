@@ -3,6 +3,7 @@
     <div class="ui sidebar inverted vertical menu left visible">
       <setting-form
         :disabled="isGenerating"
+        :debug-mode="debugMode"
         @update="handleGenerate"
         @switchDebugMode="handlerDebug"
       >
@@ -63,7 +64,7 @@ export default {
     isReady: false,
     imageUploadStatus: '',
     show: true,
-    debugMode: true,
+    debugMode: false,
     pagesCount: 1,
     settings: {
       fontFamilies: [],

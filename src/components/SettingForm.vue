@@ -74,7 +74,8 @@ export default {
   },
 
   props: {
-    disabled: Boolean
+    disabled: Boolean,
+    debugMode: Boolean
   },
 
   data: () => ({
@@ -84,6 +85,10 @@ export default {
     cbxDebug: true,
     cbxAllFamily: false
   }),
+
+  mounted() {
+    this.cbxDebug = this.debugMode
+  },
 
   computed: {
     showFamilySelect() {
