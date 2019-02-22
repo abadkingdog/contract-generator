@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "dom-to-image": "^2.6.0",
-    "file-saver": "^2.0.1",
     "is-empty": "^1.2.0",
     "lodash": "^4.17.11",
     "vue": "^2.5.17",

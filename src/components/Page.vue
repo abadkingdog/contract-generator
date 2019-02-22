@@ -13,9 +13,9 @@
     <div v-if="debugMode" class="metadata">
       <img
         v-if="image"
-        :src="image"
+        :src="image.url"
+        :alt="image.name"
         class="preview"
-        alt=""
       >
       <pre><code>{{ configuredStyles }}</code></pre>
       <p><strong>SectionsData:</strong></p>
@@ -96,7 +96,7 @@ export default {
 
     image(val) {
       if (!val) return
-      this.$emit('updateImage', { image: val, order: this.order })
+      this.$emit('updateImage', { image: val.name, order: this.order })
     }
   }
 }

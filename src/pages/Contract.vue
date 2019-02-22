@@ -11,8 +11,8 @@
         </div>
         <button
           class="ui red button fluid"
-          :class="{ disabled: !isReady, loading: isLoading }"
-          :disabled="!isReady || isLoading"
+          :class="{ disabled: isLoading, loading: isLoading }"
+          :disabled="isLoading"
           @click="handlerSubmit"
         >
           Save
@@ -69,45 +69,14 @@ export default {
       fontFamilies: [],
     },
     contractDetails: [],
-    contractImages: [],
     progress: 0
   }),
 
   methods: {
-    async handlerSubmit() {
-      console.log('submit', this.contractDetails, this.contractImages)
+    handlerSubmit() {
       this.isLoading = true
       this.imageUploadStatus = 'start'
-
-      // TODO: get images first
-      // this.sendJSON(this.contractDetails)
-      // await this.sendImage(this.contractImages)
-      // await api.uploadImages(this.contractImages).then((res) => {
-      //   this.$toastr
-      //     .h('Success IMAGES')
-      //     .s(res.message)
-      //   this.isLoading = false
-      // }).catch((e) => {
-      //   this.$toastr
-      //     .h('Error IMAGES')
-      //     .e(e)
-      //   this.isLoading = false
-      //   throw new Error(e)
-      // })
-      // const data = await imageToFromData(this.contractImages)
-      // await api.uploadImages(data).then((res) => {
-      //   console.log(res)
-      //   this.$toastr
-      //     .h('Success IMAGES')
-      //     .s(res.message)
-      //   this.isLoading = false
-      // }).catch((e) => {
-      //   this.$toastr
-      //     .h('Error IMAGES')
-      //     .e(e)
-      //   this.isLoading = false
-      //   throw new Error(e)
-      // })
+      // magic
     },
 
     async sendJSON(details) {
@@ -129,6 +98,10 @@ export default {
       this.resetSettings()
       this.settings = { ...this.settings, fontFamilies }
       this.pagesCount = pages
+
+      this.$nextTick(() => {
+        this.isGenerating = false
+      })
     },
 
     handlePageData({ sections, order, fontFamily }) {
@@ -139,9 +112,8 @@ export default {
     },
 
     handleImage({ order, image }) {
-      const name = `image_${order}`
-      this.contractDetails[order] = { ...this.contractDetails, image: name }
-      this.contractImages[name] = image
+      const pageDetails = { ...this.contractDetails[order], image }
+      this.contractDetails = Object.assign([...this.contractDetails], { [order]: pageDetails })
       this.setProgress()
     },
 
@@ -152,7 +124,6 @@ export default {
     setProgress() {
       const max = parseInt(this.pagesCount, 10)
       const cur = this.contractDetails.filter(s => s.image).length
-      console.log('image', this.pagesCount, cur)
       this.progress = cur === max ? 100 : parseInt(cur * 100 / max, 10)
     },
 
@@ -160,7 +131,6 @@ export default {
       this.isGenerating = true
       this.progress = 0
       this.contractDetails = []
-      this.contractImages = []
       this.show = false
       this.$nextTick(() => {
         this.show = true
@@ -182,16 +152,24 @@ export default {
   },
 
   watch: {
-    pagesCount: {
-      deep: true,
-      handler(val) {
-        this.pagesCount = val
-      }
+    pagesCount(val) {
+      this.pagesCount = val
     },
 
     progress(val) {
       this.isReady = val === 100
-      this.isGenerating = val !== 100
+    },
+
+    contractDetails: {
+      deep: true,
+      handler(details) {
+        const len = details.length
+        const imglen = details.filter(d => d.image).length
+        if (len > 0 && len === imglen) {
+          this.imageUploadStatus = 'finish'
+          this.sendJSON(details)
+        }
+      }
     }
   }
 }

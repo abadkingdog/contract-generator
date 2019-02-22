@@ -1,7 +1,6 @@
 import domtoimage from 'dom-to-image'
 import api from '@/utils/api'
-// import { saveAs } from '@/utils/saveToFile'
-// import { saveAs } from 'file-saver'
+
 const urlCreator = window.URL || window.webkitURL
 
 const htmlToImageMixin = {
@@ -9,32 +8,32 @@ const htmlToImageMixin = {
     image: null
   }),
 
-  mounted() {
-    this.convertToImage()
-  },
-
   methods: {
     convertToImage() {
       const paperEl = this.$el.children[0]
       domtoimage.toBlob(paperEl).then((blob) => {
-        console.log('blob', blob)
-        // const formData = new FormData()
-        // formData.append('image', blob)
-        // this.sendImg(formData)
-        this.image = urlCreator.createObjectURL(blob)
-        console.log('image uploaded')
+        const formData = new FormData()
+        formData.append('imagePage', blob)
+        this.sendImg(formData).then((filename) => {
+          this.image = {
+            name: filename,
+            url: urlCreator.createObjectURL(blob)
+          }
+        })
       })
     },
 
     sendImg(img) {
-      api.uploadImages(img).then((res) => {
+      return api.uploadImages(img).then((res) => {
+        const { filename, message } = res
         this.$toastr
-          .h('Success IMAGES')
-          .s(res.message)
+          .h(`Success image ${filename}`)
+          .s(message)
+        return filename
       }).catch((e) => {
         this.$toastr
-          .h('Error IMAGES')
-          .e(e)
+          .h('Error IMAGE upload')
+          .e(e.toString())
         throw new Error(e)
       })
     }
