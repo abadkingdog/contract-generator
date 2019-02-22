@@ -9,6 +9,6 @@ module.exports = {
       alias: {
         '../../theme.config': path.join(__dirname, 'src/theme.config')
       }
-    },
+    }
   }
 }

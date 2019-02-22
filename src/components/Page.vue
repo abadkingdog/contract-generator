@@ -1,17 +1,22 @@
 <template>
-  <div class="paper">
-    <div class="paper-content" :style="configuredStyles">
-      <Switcher
-        v-for="(section, index) in sections"
-        :key="index"
-        :type="section"
-        @updateData="getSectionData"
-      />
+  <div class="page">
+    <div class="paper">
+      <div class="paper-content" :style="configuredStyles">
+        <Switcher
+          v-for="(section, index) in sections"
+          :key="index"
+          :type="section"
+          @updateData="getSectionData"
+        />
+      </div>
     </div>
-    <div class="metadata">
-      <button @click="convertToImage()">
-        convert
-      </button>
+    <div v-if="debugMode" class="metadata">
+      <img
+        v-if="image"
+        :src="image"
+        class="preview"
+        alt=""
+      >
       <pre><code>{{ configuredStyles }}</code></pre>
       <p><strong>SectionsData:</strong></p>
       <pre><code>{{ sectionsData }}</code></pre>
@@ -42,7 +47,9 @@ export default {
         fontFamilies: () => ({})
       })
     },
-    updatePageData: { type: Function, default: () => {} }
+    updatePageData: { type: Function, default: () => {} },
+    debugMode: { type: Boolean, default: false },
+    imageUploadStatus: { type: String, default: '' }
   },
 
   data: () => ({
@@ -85,6 +92,11 @@ export default {
       handler(val) {
         this.$emit('updatePageData', { sections: val, order: this.order, fontFamily: this.selectedFF[0] })
       }
+    },
+
+    image(val) {
+      if (!val) return
+      this.$emit('updateImage', { image: val, order: this.order })
     }
   }
 }
@@ -98,6 +110,10 @@ export default {
 @FORMAT_A4_OFFSET_LEFT: 20mm;
 @FORMAT_A4_OFFSET_RIGHT: 20mm;
 @FORMAT_A4_MARGIN_BOTTOM: 20mm;
+.page {
+  position: relative;
+  display: inline-block;
+}
 .paper {
   margin: 0 0 @FORMAT_A4_MARGIN_BOTTOM;
   width: @FORMAT_A4_WIDTH;
@@ -114,16 +130,19 @@ export default {
     margin: @FORMAT_A4_OFFSET_TOP @FORMAT_A4_OFFSET_LEFT @FORMAT_A4_OFFSET_BOTTOM @FORMAT_A4_OFFSET_LEFT;
     overflow: hidden;
   }
-  .metadata {
-    background: #ffff0029;
-    position: absolute;
-    left: 101%;
-    top: 0;
-    font-size: 10px;
-    padding: 10px;
-    width: 300px;
-    max-height: @FORMAT_A4_HEIGHT;
-    overflow-y: auto;
-  }
+}
+.metadata {
+  background: #ffff0029;
+  position: absolute;
+  left: 101%;
+  top: 0;
+  font-size: 10px;
+  padding: 10px;
+  width: 300px;
+  max-height: @FORMAT_A4_HEIGHT;
+  overflow-y: auto;
+}
+.preview {
+  width: 100px;
 }
 </style>
