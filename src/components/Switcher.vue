@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <component :is="sectionName" @updateData="handlerMetadata" />
-  </div>
+  <component :is="sectionName" @updateData="handlerMetadata" />
 </template>
 
 <script>
@@ -36,11 +34,9 @@ export default {
 
   mounted() {
     this.uuid = uniqueId('section_')
-    this.$nextTick(() => {
-      const section = detectTypeComponent(sectionConfig, this.type)
-      this.section = section
-      this.sectionName = section.name
-    })
+    const section = detectTypeComponent(sectionConfig, this.type)
+    this.section = section
+    this.sectionName = section.name
   },
 
   methods: {

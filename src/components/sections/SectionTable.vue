@@ -1,24 +1,25 @@
 <template>
-  <div>
-    <table id="tableId" class="table-bordered">
-      <tbody>
-        <tr
-          v-for="row in trCount"
-          :key="row"
+  <table
+    ref="box"
+    class="table-bordered"
+  >
+    <tbody>
+      <tr
+        v-for="row in trCount"
+        :key="row"
+      >
+        <td
+          v-for="cell in tdCount"
+          :key="cell"
+          width="*"
         >
-          <td
-            v-for="cell in tdCount"
-            :key="cell"
-            width="*"
-          >
-            <span v-if="lipsum">
-              {{ lipsum.generate(5).substring(0, 5) }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+          <span v-if="lipsum">
+            {{ lipsum.generate(5).substring(0, 5) }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script>

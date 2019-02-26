@@ -1,5 +1,7 @@
 <template>
-  <p>{{ text }}</p>
+  <p ref="box">
+    {{ text }}
+  </p>
 </template>
 
 <script>

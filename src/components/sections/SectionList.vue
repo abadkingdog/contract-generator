@@ -1,9 +1,11 @@
 <template>
-  <ul>
-    <li v-for="item in randValue" :key="item">
-      {{ lipsum.generate(5).substring(0, 100) }}
-    </li>
-  </ul>
+  <div class="list">
+    <ul ref="box">
+      <li v-for="item in randValue" :key="item">
+        {{ lipsum.generate(5).substring(0, 100) }}
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
@@ -29,6 +31,10 @@ export default {
 </script>
 
 <style scoped>
+  ul, ol {
+    display: inline-block;
+    padding-left: 0;
+  }
   ul {
      list-style-type: disc;
      list-style-position: inside;

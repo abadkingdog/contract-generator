@@ -46,6 +46,7 @@
 import shuffle from 'lodash/shuffle'
 import api from '@/utils/api'
 import { SECTION_LIST } from '@/constants/sections'
+import { DEBUG_MODE } from '@/constants/settings'
 import Page from '@/components/Page'
 import SettingForm from '@/components/SettingForm'
 
@@ -62,9 +63,8 @@ export default {
     isGenerating: false,
     isLoading: false,
     isReady: false,
-    imageUploadStatus: '',
     show: true,
-    debugMode: false,
+    debugMode: DEBUG_MODE,
     pagesCount: 1,
     settings: {
       fontFamilies: [],
@@ -76,7 +76,6 @@ export default {
   methods: {
     handlerSubmit() {
       this.isLoading = true
-      this.imageUploadStatus = 'start'
       // magic
     },
 
@@ -113,12 +112,14 @@ export default {
     },
 
     handleImage({ order, image }) {
+      console.log(order, image)
       const pageDetails = { ...this.contractDetails[order], image }
       this.contractDetails = Object.assign([...this.contractDetails], { [order]: pageDetails })
       this.setProgress()
     },
 
     handlerDebug(mode) {
+      localStorage.setItem('debugMode', !!mode)
       this.debugMode = mode
     },
 
@@ -149,14 +150,17 @@ export default {
         })
       }
       return pages
+    },
+
+    imageUploadStatus() {
+      if (this.isLoading === true) {
+        return 'start'
+      }
+      return ''
     }
   },
 
   watch: {
-    pagesCount(val) {
-      this.pagesCount = val
-    },
-
     progress(val) {
       this.isReady = val === 100
     },
@@ -167,7 +171,6 @@ export default {
         const len = details.length
         const imglen = details.filter(d => d.image).length
         if (len > 0 && len === imglen) {
-          this.imageUploadStatus = 'finish'
           this.sendJSON(details)
         }
       }

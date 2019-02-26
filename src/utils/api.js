@@ -9,7 +9,7 @@ class API {
     })
       .then((response) => {
         if (response.ok) {
-          return response.clone().json()
+          return response.json()
         }
         throw new Error(response)
       })
@@ -19,14 +19,11 @@ class API {
   uploadImages(formData) {
     return fetch('http://localhost:8081/upload/images', {
       method: 'POST',
-      // headers: {
-      //   'Content-Type': 'multipart/form-data',
-      // },
       body: formData
     })
       .then((response) => {
         if (response.ok) {
-          return response.clone().json()
+          return response.json()
         }
         throw new Error(response)
       })

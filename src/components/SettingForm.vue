@@ -65,7 +65,8 @@
 
 <script>
 import Multiselect from 'vue-multiselect'
-import { FONT_LIST } from '../constants/fonts'
+import { FONT_LIST } from '@/constants/fonts'
+import { DEFAULT_FONT } from '@/constants/settings'
 
 export default {
   name: 'SettingForm',
@@ -81,7 +82,7 @@ export default {
   data: () => ({
     pagesCount: 1,
     optionsFamily: FONT_LIST,
-    valueFamily: null,
+    valueFamily: [DEFAULT_FONT],
     cbxDebug: true,
     cbxAllFamily: false
   }),

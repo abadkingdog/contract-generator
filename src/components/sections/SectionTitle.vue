@@ -1,5 +1,7 @@
 <template>
-  <h1>{{ title }}</h1>
+  <div class="title">
+    <h1 ref="box">{{ title }}</h1>
+  </div>
 </template>
 
 <script>
@@ -30,12 +32,15 @@ export default {
 </script>
 
 <style lang="less" scoped>
-  h1 {
+  .title {
     padding-top: 1em;
     padding-bottom: 1em;
     text-align: center;
     &:first-letter {
       text-transform: uppercase;
     }
+  }
+  h1 {
+    display: inline-block;
   }
 </style>

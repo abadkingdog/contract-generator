@@ -1,4 +1,4 @@
-import domtoimage from 'dom-to-image'
+import html2canvas from 'html2canvas'
 import api from '@/utils/api'
 
 const urlCreator = window.URL || window.webkitURL
@@ -9,18 +9,24 @@ const htmlToImageMixin = {
   }),
 
   methods: {
-    convertToImage() {
-      const paperEl = this.$el.children[0]
-      domtoimage.toBlob(paperEl).then((blob) => {
-        const formData = new FormData()
-        formData.append('imagePage', blob)
-        this.sendImg(formData).then((filename) => {
-          this.image = {
-            name: filename,
-            url: urlCreator.createObjectURL(blob)
-          }
-        })
+    getCanvasBlob(canvas) {
+      return new Promise((resolve) => {
+        canvas.toBlob(blob => resolve(blob))
       })
+    },
+
+    async convertToImage() {
+      const paperEl = this.$el.children[0]
+      const canvas = await html2canvas(paperEl)
+      const blob = await this.getCanvasBlob(canvas)
+      const formData = new FormData()
+      formData.append('imagePage', blob)
+      const filename = await this.sendImg(formData)
+      console.log('filename', filename)
+      this.image = {
+        name: filename,
+        url: urlCreator.createObjectURL(blob)
+      }
     },
 
     sendImg(img) {

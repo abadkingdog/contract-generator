@@ -11,3 +11,11 @@ export const SECTION_LIST = [
   'paragraph',
   'paragraph',
 ]
+
+export const SECTION_STYLE = {
+  table: 'red',
+  title: 'blue',
+  list: 'green',
+  paragraph: 'orange',
+  default: 'pink'
+}

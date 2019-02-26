@@ -1,5 +1,5 @@
 <template>
-  <div class="contract-header">
+  <div ref="box" class="contract-header">
     <img :src="image" alt="">
   </div>
 </template>
