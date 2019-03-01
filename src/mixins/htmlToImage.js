@@ -1,4 +1,5 @@
 import html2canvas from 'html2canvas'
+import debounce from 'lodash/debounce'
 import api from '@/utils/api'
 
 const urlCreator = window.URL || window.webkitURL
@@ -7,6 +8,16 @@ const htmlToImageMixin = {
   data: () => ({
     image: null
   }),
+
+  created() {
+    // _.debounce — это функция lodash, позволяющая ограничить то,
+    // насколько часто может выполняться определённая операция.
+    // В данном случае мы ограничиваем частоту обращений к yesno.wtf/api,
+    // дожидаясь завершения печати вопроса перед отправкой ajax-запроса.
+    // Узнать больше о функции _.debounce (и её родственнице _.throttle),
+    // можно в документации: https://lodash.com/docs#debounce
+    this.debouncedConvertToImage = debounce(this.convertToImage, 500)
+  },
 
   methods: {
     getCanvasBlob(canvas) {
@@ -44,10 +55,11 @@ const htmlToImageMixin = {
       })
     }
   },
+
   watch: {
     imageUploadStatus(val) {
       if (val === 'start') {
-        this.convertToImage()
+        this.debouncedConvertToImage()
       }
     }
   }

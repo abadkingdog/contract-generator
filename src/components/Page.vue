@@ -132,7 +132,6 @@ export default {
     },
 
     image(val) {
-      console.log('image', val)
       if (!val) return
       this.$emit('updateImage', { image: val.name, order: this.order })
     },
