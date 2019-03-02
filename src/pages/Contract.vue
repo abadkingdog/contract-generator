@@ -23,19 +23,15 @@
     <div class="pusher">
       <div class="fix">
         <div class="ui basic segment">
-          <template v-if="show">
-            <page
-              v-for="page in pages"
-              :key="page.id"
-              :order="page.id"
-              :sections="page.sections"
-              :settings="settings"
-              :debug-mode="debugMode"
-              :image-upload-status="imageUploadStatus"
-              @updatePageData="handlePageData"
-              @updateImage="handleImage"
-            />
-          </template>
+          <pages
+            v-if="show"
+            :pages="pages"
+            :settings="settings"
+            :debug-mode="debugMode"
+            :image-upload-status="imageUploadStatus"
+            :progress.sync="progress"
+            @updateDetails="handleDetails"
+          />
         </div>
       </div>
     </div>
@@ -47,7 +43,7 @@ import shuffle from 'lodash/shuffle'
 import api from '@/utils/api'
 import { SECTION_LIST } from '@/constants/sections'
 import { DEBUG_MODE } from '@/constants/settings'
-import Page from '@/components/Page'
+import Pages from '@/components/Pages'
 import SettingForm from '@/components/SettingForm'
 
 const SECTIONS = shuffle(SECTION_LIST)
@@ -55,7 +51,7 @@ const SECTIONS = shuffle(SECTION_LIST)
 export default {
   name: 'Contract',
   components: {
-    Page,
+    Pages,
     SettingForm
   },
 
@@ -69,7 +65,6 @@ export default {
     settings: {
       fontFamilies: [],
     },
-    contractDetails: [],
     progress: 0
   }),
 
@@ -104,35 +99,18 @@ export default {
       })
     },
 
-    handlePageData({ sections, order, fontFamily }) {
-      this.contractDetails[order] = {
-        sections,
-        fontFamily
-      }
-    },
-
-    handleImage({ order, image }) {
-      console.log(order, image)
-      const pageDetails = { ...this.contractDetails[order], image }
-      this.contractDetails = Object.assign([...this.contractDetails], { [order]: pageDetails })
-      this.setProgress()
-    },
-
     handlerDebug(mode) {
       localStorage.setItem('debugMode', !!mode)
       this.debugMode = mode
     },
 
-    setProgress() {
-      const max = parseInt(this.pagesCount, 10)
-      const cur = this.contractDetails.filter(s => s.image).length
-      this.progress = cur === max ? 100 : parseInt(cur * 100 / max, 10)
+    handleDetails(details) {
+      this.sendJSON(details)
     },
 
     resetSettings() {
       this.isGenerating = true
       this.progress = 0
-      this.contractDetails = []
       this.show = false
       this.$nextTick(() => {
         this.show = true
@@ -152,28 +130,15 @@ export default {
       return pages
     },
 
+    // uses in mixin
     imageUploadStatus() {
-      if (this.isLoading === true) {
-        return 'start'
-      }
-      return ''
+      return this.isLoading === true ? 'start' : ''
     }
   },
 
   watch: {
     progress(val) {
       this.isReady = val === 100
-    },
-
-    contractDetails: {
-      deep: true,
-      handler(details) {
-        const len = details.length
-        const imglen = details.filter(d => d.image).length
-        if (len > 0 && len === imglen) {
-          this.sendJSON(details)
-        }
-      }
     }
   }
 }
