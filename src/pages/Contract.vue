@@ -41,10 +41,12 @@
 <script>
 import shuffle from 'lodash/shuffle'
 import api from '@/utils/api'
-import { SECTION_LIST } from '@/constants/sections'
-import { DEBUG_MODE } from '@/constants/settings'
 import Pages from '@/components/Pages'
 import SettingForm from '@/components/SettingForm'
+import EventBus from '@/utils/event-bus'
+import { SECTION_LIST } from '@/constants/sections'
+import { DEBUG_MODE } from '@/constants/settings'
+import { SHOW_LOGGER, FINISH_LOG } from '@/constants/events'
 
 const SECTIONS = shuffle(SECTION_LIST)
 
@@ -71,19 +73,16 @@ export default {
   methods: {
     handlerSubmit() {
       this.isLoading = true
+      EventBus.$emit(SHOW_LOGGER, true)
       // magic
     },
 
     async sendJSON(details) {
       await api.uploadJSON(details).then((res) => {
-        this.$toastr
-          .h('Success JSON')
-          .s(res.message)
+        EventBus.$emit(FINISH_LOG, { message: 'JSON is saved', status: 'success', description: res.message })
         this.isLoading = false
       }).catch((e) => {
-        this.$toastr
-          .h('Error JSON')
-          .e(e)
+        EventBus.$emit(FINISH_LOG, { message: 'Error JSON', status: 'error' })
         this.isLoading = false
         throw new Error(e)
       })

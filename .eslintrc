@@ -61,7 +61,8 @@
       },
       "svg": "always",
       "math": "always"
-    }]
+    }],
+    "vue/no-v-html": 0
   }
 //  globals: {
 //    jest: true,
