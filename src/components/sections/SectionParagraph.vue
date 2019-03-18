@@ -1,26 +1,19 @@
 <template>
-  <p ref="box">
+  <p>
     {{ text }}
   </p>
 </template>
 
 <script>
 import random from 'lodash/random'
-import coordMixin from '@/mixins/coords'
 import { LoremIpsum } from '@/utils/lorem-ipsum'
 
 export default {
   name: 'SectionParagraph',
 
-  mixins: [coordMixin],
-
   data: () => ({
-    lipsum: null
+    lipsum: new LoremIpsum()
   }),
-
-  created() {
-    this.lipsum = new LoremIpsum()
-  },
 
   computed: {
     text() {
@@ -33,7 +26,7 @@ export default {
 
 <style scoped>
 p {
-  margin-bottom: 1.5em;
+  margin-bottom: 1.5em !important;
 }
 a {
   color: #42b983;

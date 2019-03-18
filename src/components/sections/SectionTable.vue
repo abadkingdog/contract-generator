@@ -2,16 +2,34 @@
   <table
     ref="box"
     class="table-bordered"
+    rules="groups"
   >
+    <thead v-if="hasHeader">
+      <tr>
+        <th
+          v-for="cell in tdCount"
+          :key="cell"
+          :style="cellStyles"
+        >
+          {{ lipsum.generate(5).substring(0, 5) }}
+        </th>
+      </tr>
+    </thead>
     <tbody>
       <tr
         v-for="row in trCount"
         :key="row"
       >
+        <td :style="cellStyles">
+          {{ row }}
+        </td>
+        <td align="right" :style="cellStyles">
+          {{ randPrice() }}
+        </td>
         <td
-          v-for="cell in tdCount"
+          v-for="cell in (tdCount - 2)"
           :key="cell"
-          width="*"
+          :style="cellStyles"
         >
           <span v-if="lipsum">
             {{ lipsum.generate(5).substring(0, 5) }}
@@ -24,23 +42,24 @@
 
 <script>
 import random from 'lodash/random'
-import coordMixin from '@/mixins/coords'
+import {
+  BORDER_WIDTH,
+  TD_COUNT,
+  TR_COUNT,
+  HAS_HEADER,
+  ROW_PRICE
+} from '@/constants/table'
 import { LoremIpsum } from '@/utils/lorem-ipsum'
 
 export default {
   name: 'SectionTable',
 
-  mixins: [coordMixin],
-
   data: () => ({
-    tdCount: 1,
+    tdCount: 2,
     trCount: 1,
-    lipsum: null,
+    hasHeader: 0,
+    lipsum: new LoremIpsum()
   }),
-
-  created() {
-    this.lipsum = new LoremIpsum()
-  },
 
   mounted() {
     this.createCells()
@@ -48,34 +67,47 @@ export default {
 
   methods: {
     createCells() {
-      this.tdCount = random(8) + 1
-      this.trCount = random(5) + 1
+      this.tdCount = random(TD_COUNT.start, TD_COUNT.end)
+      this.trCount = random(TR_COUNT.start, TR_COUNT.end)
+      this.hasHeader = random(HAS_HEADER.start, HAS_HEADER.end)
+    },
+    randPrice() {
+      return random(ROW_PRICE.start, ROW_PRICE.end)
     }
   },
+
+  computed: {
+    cellStyles() {
+      const borderWidth = random(BORDER_WIDTH.start, BORDER_WIDTH.end)
+
+      return {
+        borderWidth: `${borderWidth}px`
+      }
+    }
+  }
 }
 </script>
 
 <style lang="less" scoped>
   table {
     border-collapse: collapse;
-    margin-bottom: 20px;
     width: 100%;
   }
   th, td {
     display: table-cell;
     line-height: 1.5em;
-    padding: .5rem 0;
   }
   .table-bordered {
-    border: 1px solid #dee2e6;
+    border: 1px solid gray;
     td, th {
-      border: 1px solid #dee2e6;
-    }
-    td,
-    th {
-      padding: 0;
+      border: 1px solid gray;
+      padding: .2rem .5rem;
       vertical-align: top;
-      border-top: 1px solid #dee2e6;
+      font-weight: normal;
+    }
+    th {
+      font-weight: bold;
+      border-bottom: 2px solid black;
     }
   }
 </style>

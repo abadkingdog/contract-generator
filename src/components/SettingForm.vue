@@ -26,6 +26,30 @@
           placeholder="Select Font Family"
         />
       </div>
+      <div class="field fonts-select">
+        <div class="pull-right">
+          <div class="ui checkbox">
+            <input
+              id="allSizes"
+              v-model="cbxAllSizes"
+              name="allSizes"
+              type="checkbox"
+            >
+            <label for="allSizes">Select all</label>
+          </div>
+        </div>
+        <label for="valueSizeId">Font size</label>
+        <multiselect
+          v-if="showSizeSelect"
+          id="valueSizeId"
+          v-model="valueSize"
+          :clear-on-select="false"
+          :close-on-select="false"
+          :multiple="true"
+          :options="optionsSizes"
+          placeholder="Select Font Size"
+        />
+      </div>
       <div class="field">
         <label for="pagesCountId">Pages</label>
         <input
@@ -65,8 +89,8 @@
 
 <script>
 import Multiselect from 'vue-multiselect'
-import { FONT_LIST } from '@/constants/fonts'
-import { DEFAULT_FONT } from '@/constants/settings'
+import { FONT_LIST, FONT_SIZES } from '@/constants/fonts'
+import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from '@/constants/settings'
 
 export default {
   name: 'SettingForm',
@@ -83,8 +107,11 @@ export default {
     pagesCount: 1,
     optionsFamily: FONT_LIST,
     valueFamily: [DEFAULT_FONT],
+    optionsSizes: FONT_SIZES,
+    valueSize: [DEFAULT_FONT_SIZE],
     cbxDebug: true,
-    cbxAllFamily: false
+    cbxAllFamily: false,
+    cbxAllSizes: false
   }),
 
   mounted() {
@@ -94,29 +121,29 @@ export default {
   computed: {
     showFamilySelect() {
       return this.optionsFamily.length
+    },
+    showSizeSelect() {
+      return this.optionsSizes.length
     }
   },
 
   methods: {
-    selectAllFonts() {
-      this.valueFamily = this.optionsFamily
-    },
-
     handleSubmit() {
       this.$emit('update', {
         pages: this.pagesCount,
-        fontFamilies: this.valueFamily
+        fontFamilies: this.valueFamily,
+        fontSizes: this.valueSize
       })
     }
   },
 
   watch: {
     cbxAllFamily(val) {
-      if (val) {
-        this.selectAllFonts()
-      } else {
-        this.valueFamily = null
-      }
+      this.valueFamily = val && this.optionsFamily
+    },
+
+    cbxAllSizes(val) {
+      this.valueSize = val && this.optionsSizes
     },
 
     cbxDebug(val) {

@@ -12,7 +12,7 @@
           @updateData="getSectionData"
         />
       </div>
-      <template v-if="debugMode">
+      <template v-if="debugMode && sectionsData">
         <div
           v-for="value in sectionsData"
           :key="value.id"
@@ -58,7 +58,8 @@ export default {
     settings: {
       type: Object,
       default: () => ({
-        fontFamilies: () => ({})
+        fontFamilies: () => ([]),
+        fontSizes: () => ([])
       })
     },
     updatePageData: { type: Function, default: () => {} },
@@ -68,19 +69,23 @@ export default {
 
   data: () => ({
     selectedFF: [{ name: DEFAULT_FONT }],
-    sectionsData: []
+    selectedFZ: [null],
+    sectionsData: [],
+    sectionBoundedBoxes: []
   }),
 
   computed: {
     configuredStyles() {
       return {
-        'font-family': this.selectedFF[0]
+        'font-family': this.selectedFF[0],
+        'font-size': this.selectedFZ[0]
       }
     },
   },
 
   mounted() {
     this.selectedFF = shuffle(this.settings.fontFamilies)
+    this.selectedFZ = shuffle(this.settings.fontSizes)
   },
 
   methods: {
@@ -89,27 +94,53 @@ export default {
     // @this.box - coords of page
     // @sectionCoords - coords of segment
     */
-    getSectionData({ sectionCoords: { top, right, bottom, left, height, width }, id, type }) {
-      let coords = {
-        top: top - this.box.top,
-        bottom: bottom - this.box.top,
-        right: right - this.box.left,
-        left: left - this.box.left,
-        height,
-        width,
-      }
-      const MAX_TOP = 1045
-      if (coords.top > MAX_TOP) return
-      if (coords.bottom > MAX_TOP) {
-        coords = {
-          ...coords,
-          bottom: MAX_TOP,
-          height: MAX_TOP - coords.top
-        }
-      }
+    updateBoundedBox(pageBox) {
+      this.updateSectionBoundedBox({ pageBox })
+    },
 
-      if (coords.height < 16) return
-      this.sectionsData.push({ id, type, coords })
+    updateSectionBoundedBox({ pageBox }) {
+      if (!pageBox) return
+      this.sectionsData = this.sectionBoundedBoxes.map((
+        {
+          sectionCoords: {
+            top,
+            right,
+            bottom,
+            left,
+            height,
+            width
+          },
+          id,
+          type
+        }
+      ) => {
+        let coords = {
+          top: top - pageBox.top,
+          bottom: bottom - pageBox.top,
+          right: right - pageBox.left,
+          left: left - pageBox.left,
+          height,
+          width,
+        }
+
+        const MAX_TOP = 1045
+        if (coords.top > MAX_TOP) return
+        if (coords.bottom > MAX_TOP) {
+          coords = {
+            ...coords,
+            bottom: MAX_TOP,
+            height: MAX_TOP - coords.top
+          }
+        }
+
+        if (coords.height < 16) return
+        // eslint-disable-next-line consistent-return
+        return { id, type, coords }
+      })
+    },
+
+    getSectionData(params) {
+      this.sectionBoundedBoxes.push(params)
     },
 
     bbstyles({ top, left, height, width }, type = 'default') {
@@ -127,7 +158,7 @@ export default {
     sectionsData: {
       deep: true,
       handler(val) {
-        this.$emit('updatePageData', { sections: val, order: this.order, fontFamily: this.selectedFF[0] })
+        this.$emit('updatePageData', { sections: val, order: this.order, ...this.configuredStyles })
       }
     },
 
@@ -168,6 +199,9 @@ export default {
   .paper-content {
     height: @FORMAT_A4_HEIGHT - @FORMAT_A4_OFFSET_TOP - @FORMAT_A4_OFFSET_BOTTOM;
     overflow: hidden;
+    /*display: flex;*/
+    /*flex-direction: row;*/
+    /*flex-wrap: wrap;*/
   }
 }
 .metadata {
@@ -189,7 +223,7 @@ export default {
   position: absolute;
   z-index: 10;
   pointer-events: none;
-  background: rgba(255,255,255, 0.4);
+  /*background: rgba(255,255,255, 0.4);*/
 }
   .paper-box {
     border: 1px solid blue;

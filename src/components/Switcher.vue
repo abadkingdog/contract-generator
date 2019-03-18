@@ -1,17 +1,30 @@
 <template>
-  <component :is="sectionName" @updateData="handlerMetadata" />
+  <div>
+    <div
+      ref="box"
+      class="switch-box"
+      :style="blockStyles"
+    >
+      <component
+        :is="sectionName"
+      />
+    </div>
+  </div>
 </template>
 
 <script>
 import uniqueId from 'lodash/uniqueId'
 import sectionConfig from '@/section-config'
 import { detectTypeComponent } from '@/utils/helpers'
+import coordMixin from '@/mixins/coords'
+import switchStylesMixin from '@/mixins/switchStyles'
 
 import SectionParagraph from './sections/SectionParagraph'
 import SectionTable from './sections/SectionTable'
 import SectionHeader from './sections/SectionHeader'
 import SectionList from './sections/SectionList'
 import SectionTitle from './sections/SectionTitle'
+import SectionBlock from './sections/SectionBlock'
 
 export default {
   components: {
@@ -20,12 +33,15 @@ export default {
     SectionHeader,
     SectionList,
     SectionTitle,
+    SectionBlock
   },
 
   props: {
     type: { type: String, default: '' },
     updateMetadata: { type: Function, default: () => {} }
   },
+
+  mixins: [coordMixin, switchStylesMixin],
 
   data: () => ({
     section: null,
@@ -40,9 +56,20 @@ export default {
   },
 
   methods: {
-    handlerMetadata(params) {
-      this.$emit('updateData', { ...params, id: this.uuid, type: this.type })
+    updateBoundedBox(val) {
+      this.$emit('updateData', {
+        sectionCoords: val,
+        id: this.uuid,
+        type: this.type
+      })
     }
   }
 }
 </script>
+
+<style scoped>
+  .switch-box {
+    margin: 10px 0 20px;
+    display: inline-block;
+  }
+</style>

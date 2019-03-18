@@ -25,9 +25,6 @@ export const FONT_LIST = [
   'NotMaryKate',
   'Open Sans',
   'Serifa BT',
-  'Serifa BT',
-  'Serifa BT',
-  'SF Buttacup Lettering',
   'SF Buttacup Lettering',
   'Souvenir Lt BT',
   'Space Frigate',
@@ -40,3 +37,4 @@ export const FONT_LIST = [
 ]
 
 export const FONT_STYLES = ['bold', 'italic', 'normal']
+export const FONT_SIZES = ['10px', '12px', '14px', '16px', '18px']

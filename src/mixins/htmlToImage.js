@@ -18,7 +18,10 @@ const htmlToImageMixin = {
   methods: {
     getCanvasBlob(canvas) {
       return new Promise((resolve) => {
-        canvas.toBlob(blob => resolve(blob))
+        canvas.toBlob((blob) => {
+          EventBus.$emit(ADD_LOG, { message: `Page_${this.order} blob created` })
+          return resolve(blob)
+        })
       })
     },
 
@@ -27,7 +30,6 @@ const htmlToImageMixin = {
       const canvas = await html2canvas(paperEl)
       EventBus.$emit(ADD_LOG, { message: `Page_${this.order} canvas created` })
       const blob = await this.getCanvasBlob(canvas)
-      EventBus.$emit(ADD_LOG, { message: `Page_${this.order} blob created` })
       const formData = new FormData()
       formData.append('imagePage', blob)
       const filename = await this.sendImg(formData)

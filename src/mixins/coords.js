@@ -21,6 +21,7 @@ const coordMixin = {
   methods: {
     getOffset(el) {
       const rect = el.getBoundingClientRect()
+
       return {
         left: rect.left + window.scrollX,
         top: rect.top + window.scrollY,
@@ -43,14 +44,13 @@ const coordMixin = {
       const { height, width } = this.countedBox
 
       if (height < 16 || width < 10) return null
-
       return this.countedBox
     }
   },
 
   watch: {
     box(val) {
-      this.$emit('updateData', { sectionCoords: val })
+      val && this.updateBoundedBox(val)
     }
   }
 }

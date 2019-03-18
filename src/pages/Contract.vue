@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import shuffle from 'lodash/shuffle'
+// import shuffle from 'lodash/shuffle'
 import api from '@/utils/api'
 import Pages from '@/components/Pages'
 import SettingForm from '@/components/SettingForm'
@@ -48,7 +48,7 @@ import { SECTION_LIST } from '@/constants/sections'
 import { DEBUG_MODE } from '@/constants/settings'
 import { SHOW_LOGGER, FINISH_LOG } from '@/constants/events'
 
-const SECTIONS = shuffle(SECTION_LIST)
+const SECTIONS = SECTION_LIST // shuffle(SECTION_LIST)
 
 export default {
   name: 'Contract',
@@ -79,7 +79,11 @@ export default {
 
     async sendJSON(details) {
       await api.uploadJSON(details).then((res) => {
-        EventBus.$emit(FINISH_LOG, { message: 'JSON is saved', status: 'success', description: res.message })
+        EventBus.$emit(FINISH_LOG, {
+          message: 'JSON is saved successfully',
+          status: 'success',
+          description: res.message
+        })
         this.isLoading = false
       }).catch((e) => {
         EventBus.$emit(FINISH_LOG, { message: 'Error JSON', status: 'error' })
@@ -88,9 +92,9 @@ export default {
       })
     },
 
-    handleGenerate({ pages, fontFamilies }) {
+    handleGenerate({ pages, fontFamilies, fontSizes }) {
       this.resetSettings()
-      this.settings = { ...this.settings, fontFamilies }
+      this.settings = { ...this.settings, fontFamilies, fontSizes }
       this.pagesCount = pages
 
       this.$nextTick(() => {
@@ -126,6 +130,7 @@ export default {
           sections: SECTIONS
         })
       }
+      console.log('pages', pages)
       return pages
     },
 

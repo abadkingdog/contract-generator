@@ -51,6 +51,7 @@ export default {
 
   methods: {
     handlePageData({ sections, order, fontFamily }) {
+      console.log('>>>', sections, order, fontFamily)
       this.contractDetails[order] = {
         sections,
         fontFamily
@@ -77,7 +78,6 @@ export default {
       handler(details) {
         const len = details.length
         const imglen = details.filter(d => d.image).length
-        console.log('details', len, imglen)
         if (len > 0 && len === imglen) {
           this.$emit('updateDetails', details)
         }
