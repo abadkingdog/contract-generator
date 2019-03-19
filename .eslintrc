@@ -36,7 +36,23 @@
       }
     ],
     "comma-dangle": 0,
-    "no-param-reassign": 0,
+    "no-param-reassign": [
+      "error",
+      {
+        "props": true,
+        "ignorePropertyModificationsFor": [
+          "state",
+          "acc",
+          "e",
+          "ctx",
+          "req",
+          "request",
+          "res",
+          "response",
+          "$scope"
+        ]
+      }
+    ],
     "eqeqeq": ["error", "always"],
     "no-plusplus": 0,
     "semi": ["error", "never"],

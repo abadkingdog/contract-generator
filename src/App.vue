@@ -2,9 +2,9 @@
   <div id="app">
     <Contract />
     <modal
-      v-if="showLogger"
+      v-if="isVisible"
       :is-saving="isSaving"
-      @close="showLogger = false"
+      @close="showLogger(false)"
     >
       <h3 slot="header">{{ logHeader }}</h3>
       <div slot="content">
@@ -15,18 +15,13 @@
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex'
 import Contract from '@/pages/Contract'
 import Modal from '@/components/Modal'
 import Logger from '@/components/Logger'
-import EventBus from '@/utils/event-bus'
-import { SHOW_LOGGER, FINISH_LOG } from '@/constants/events'
 
 export default {
   name: 'App',
-  data: () => ({
-    showLogger: false,
-    isSaving: true
-  }),
 
   components: {
     Contract,
@@ -34,18 +29,18 @@ export default {
     Logger
   },
 
-  mounted() {
-    EventBus.$on(SHOW_LOGGER, (payload) => {
-      this.showLogger = payload
-      this.isSaving = payload
-    })
-
-    EventBus.$on(FINISH_LOG, () => {
-      this.isSaving = false
-    })
+  methods: {
+    ...mapActions('logger', [
+      'showLogger',
+    ]),
   },
 
   computed: {
+    ...mapState('logger', [
+      'isVisible',
+      'isSaving'
+    ]),
+
     logHeader() {
       return this.isSaving ? 'Waiting' : 'Saved'
     }

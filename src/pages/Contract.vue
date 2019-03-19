@@ -40,13 +40,12 @@
 
 <script>
 // import shuffle from 'lodash/shuffle'
+import { mapActions } from 'vuex'
 import api from '@/utils/api'
 import Pages from '@/components/Pages'
 import SettingForm from '@/components/SettingForm'
-import EventBus from '@/utils/event-bus'
 import { SECTION_LIST } from '@/constants/sections'
 import { DEBUG_MODE } from '@/constants/settings'
-import { SHOW_LOGGER, FINISH_LOG } from '@/constants/events'
 
 const SECTIONS = SECTION_LIST // shuffle(SECTION_LIST)
 
@@ -71,22 +70,30 @@ export default {
   }),
 
   methods: {
+    ...mapActions('logger', [
+      'showLogger',
+      'endLogger'
+    ]),
+
     handlerSubmit() {
       this.isLoading = true
-      EventBus.$emit(SHOW_LOGGER, true)
+      this.showLogger(true)
       // magic
     },
 
     async sendJSON(details) {
       await api.uploadJSON(details).then((res) => {
-        EventBus.$emit(FINISH_LOG, {
+        this.endLogger({
           message: 'JSON is saved successfully',
           status: 'success',
           description: res.message
         })
         this.isLoading = false
       }).catch((e) => {
-        EventBus.$emit(FINISH_LOG, { message: 'Error JSON', status: 'error' })
+        this.endLogger({
+          message: 'Error JSON',
+          status: 'error'
+        })
         this.isLoading = false
         throw new Error(e)
       })
