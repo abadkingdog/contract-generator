@@ -4,6 +4,7 @@ const SET_LOGGER_VISIBILITY = 'SET_LOGGER_VISIBILITY'
 const SET_LOGGER_FINISH = 'SET_LOGGER_FINISH'
 const ADD_LOGGER_MESSAGE = 'ADD_LOGGER_MESSAGE'
 const SET_LOGGER_IN_PROCESS = 'SET_LOGGER_IN_PROCESS'
+const CLEAR_LOGGER = 'CLEAR_LOGGER'
 
 // initial state
 const state = {
@@ -43,6 +44,10 @@ const actions = {
 
   addMessage({ commit }, payload) {
     commit(ADD_LOGGER_MESSAGE, payload)
+  },
+
+  clearLogger({ commit }) {
+    commit(CLEAR_LOGGER)
   }
 }
 
@@ -62,6 +67,13 @@ const mutations = {
 
   SET_LOGGER_IN_PROCESS(state, payload) {
     state.isSaving = payload
+  },
+
+  CLEAR_LOGGER(state) {
+    state.isVisible = false
+    state.isSaving = false
+    state.text = ''
+    state.summary = ''
   }
 }
 

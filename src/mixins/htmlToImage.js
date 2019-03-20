@@ -1,7 +1,6 @@
 import { mapActions } from 'vuex'
 import html2canvas from 'html2canvas'
 import debounce from 'lodash/debounce'
-import api from '@/utils/api'
 
 const urlCreator = window.URL || window.webkitURL
 
@@ -17,6 +16,10 @@ const htmlToImageMixin = {
   methods: {
     ...mapActions('logger', [
       'addMessage',
+    ]),
+
+    ...mapActions('result', [
+      'sendImageAction'
     ]),
 
     getCanvasBlob(canvas) {
@@ -39,15 +42,16 @@ const htmlToImageMixin = {
       const blob = await this.getCanvasBlob(canvas)
       const formData = new FormData()
       formData.append('imagePage', blob)
-      const filename = await this.sendImg(formData)
+      const filename = await this.sendImg(formData, this.id)
+      console.log(filename)
       this.image = {
         name: filename,
         url: urlCreator.createObjectURL(blob)
       }
     },
 
-    sendImg(img) {
-      return api.uploadImages(img).then((res) => {
+    sendImg(image, pageId) {
+      return this.sendImageAction({ image, pageId }).then((res) => {
         const { filename, message } = res
         this.addMessage({
           message: `Page_${this.order} ${filename} is saved successfully <br />`,
@@ -66,9 +70,15 @@ const htmlToImageMixin = {
     }
   },
 
+  computed: {
+    imageUploadStatus() {
+      return this.$store.state.result.isProcessing
+    }
+  },
+
   watch: {
     imageUploadStatus(val) {
-      if (val === 'start') {
+      if (val) {
         this.debouncedConvertToImage()
       }
     }

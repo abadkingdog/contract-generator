@@ -10,8 +10,8 @@
         </div>
         <button
           class="ui red button fluid"
-          :class="{ disabled: isLoading, loading: isLoading }"
-          :disabled="isLoading || !boxesIsReady"
+          :class="{ disabled: isProcessing, loading: isProcessing }"
+          :disabled="isProcessing || !boxesIsReady"
           @click="handlerSubmit"
         >
           Save
@@ -24,10 +24,6 @@
           <pages
             v-if="show"
             :pages="pages"
-            :page-blocks="pageBlocks"
-            :image-upload-status="imageUploadStatus"
-            :progress.sync="progress"
-            @updateDetails="handleDetails"
           />
         </div>
       </div>
@@ -37,7 +33,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import api from '@/utils/api'
+// import api from '@/utils/api'
 import Pages from '@/components/Pages'
 import SettingForm from '@/components/SettingForm'
 
@@ -50,10 +46,7 @@ export default {
 
   data: () => ({
     isGenerating: false,
-    isLoading: false,
-    isReady: false,
-    show: true,
-    progress: 0
+    show: true
   }),
 
   mounted() {
@@ -63,7 +56,8 @@ export default {
   methods: {
     ...mapActions('logger', [
       'showLogger',
-      'endLogger'
+      'endLogger',
+      'clearLogger'
     ]),
 
     ...mapActions('pages', [
@@ -71,34 +65,14 @@ export default {
     ]),
 
     ...mapActions('result', [
-      'initResultProcess'
+      'initResultProcess',
+      'sendResult',
+      'clearResults'
     ]),
 
     handlerSubmit() {
+      this.showLogger(true)
       this.initResultProcess()
-
-      this.isLoading = true
-      // TODO:
-      // this.showLogger(true)
-      // magic
-    },
-
-    async sendJSON(details) {
-      await api.uploadJSON(details).then((res) => {
-        this.endLogger({
-          message: 'JSON is saved successfully',
-          status: 'success',
-          description: res.message
-        })
-        this.isLoading = false
-      }).catch((e) => {
-        this.endLogger({
-          message: 'Error JSON',
-          status: 'error'
-        })
-        this.isLoading = false
-        throw new Error(e)
-      })
     },
 
     handleGenerate() {
@@ -109,14 +83,11 @@ export default {
       })
     },
 
-    handleDetails(details) {
-      this.sendJSON(details)
-    },
-
     resetSettings() {
       this.isGenerating = true
-      this.progress = 0
       this.show = false
+      this.clearResults()
+      this.clearLogger()
       this.$nextTick(() => {
         this.show = true
       })
@@ -125,30 +96,38 @@ export default {
 
   computed: {
     ...mapState('result', [
-      'isProcessing'
+      'isProcessing',
+      'progress'
     ]),
 
     pages() {
       return this.$store.state.pages.blocks
     },
 
-    // uses in mixin
-    imageUploadStatus() {
-      return this.isLoading === true ? 'start' : ''
-    },
-
-    pageBlocks() {
-      return this.$store.state.pages.blocks
-    },
-
     boxesIsReady() {
       return this.$store.getters['box/isReady']
+    },
+
+    isReadyForSending() {
+      return this.$store.getters['result/isReadyForSending']
     }
   },
-
   watch: {
-    progress(val) {
-      this.isReady = val === 100
+    isReadyForSending(val) {
+      if (val) {
+        this.sendResult().then(() => {
+          this.endLogger({
+            message: 'JSON is saved successfully',
+            status: 'success'
+          })
+        }).catch((e) => {
+          this.endLogger({
+            message: 'Error JSON',
+            status: 'error'
+          })
+          throw new Error(e)
+        })
+      }
     }
   }
 }

@@ -60,8 +60,7 @@ export default {
     id: { type: String, default: '0' },
     sections: { type: Array, default: () => ([]) },
     order: { type: Number, default: 1 },
-    updatePageData: { type: Function, default: () => {} },
-    imageUploadStatus: { type: String, default: '' }
+    updatePageData: { type: Function, default: () => {} }
   },
 
   data: () => ({
@@ -116,24 +115,6 @@ export default {
 
     isVariable(index) {
       return this.variableIndexes.includes(index)
-    }
-  },
-
-  watch: {
-    // // TODO
-    // sectionsData: {
-    //   deep: true,
-    //   handler(val) {
-    //     this.$emit('updatePageData', { sections: val, order: this.order })
-    //     // TODO
-    //     this.setPageResult({ sections: val, order: this.order })
-    //   }
-    // },
-
-    image(val) {
-      if (!val) return
-      this.addImageToResult({ image: val.name, pageId: this.id, order: this.order })
-      this.$emit('updateImage', { image: val.name, order: this.order })
     }
   }
 }
