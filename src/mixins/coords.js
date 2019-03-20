@@ -24,12 +24,12 @@ const coordMixin = {
       const rect = el.getBoundingClientRect()
 
       return {
-        left: rect.left + window.scrollX,
-        top: rect.top + window.scrollY,
-        bottom: rect.bottom + window.scrollY,
-        right: rect.right + window.scrollY,
-        width: rect.width,
-        height: rect.height,
+        left: parseInt(rect.left + window.scrollX, 10),
+        top: parseInt(rect.top + window.scrollY, 10),
+        bottom: parseInt(rect.bottom + window.scrollY, 10),
+        right: parseInt(rect.right + window.scrollY, 10),
+        width: parseInt(rect.width, 10),
+        height: parseInt(rect.height, 10)
       }
     },
 

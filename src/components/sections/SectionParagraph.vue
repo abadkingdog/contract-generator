@@ -28,6 +28,9 @@ export default {
 </script>
 
 <style scoped>
+p {
+  display: inline-block;
+}
 a {
   color: #42b983;
 }
