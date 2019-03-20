@@ -8,11 +8,10 @@
     >
       <template v-slot="{ item }">
         <page
+          :id="`page_${item.id}`"
           :key="item.id"
           :order="item.id"
           :sections="item.sections"
-          :settings="settings"
-          :debug-mode="debugMode"
           :image-upload-status="imageUploadStatus"
           @updatePageData="handlePageData"
           @updateImage="handleImage"
@@ -36,11 +35,7 @@ export default {
 
   props: {
     pages: { type: Array, default: () => ([]) },
-    settings: {
-      type: Object,
-      default: () => ({})
-    },
-    debugMode: { type: Boolean, default: false },
+    pageBlocks: { type: Array, default: () => ([]) },
     imageUploadStatus: { type: String, default: '' },
     progress: { type: Number, default: 0 }
   },
@@ -49,16 +44,19 @@ export default {
     contractDetails: []
   }),
 
+  mount() {
+    console.log('pages pageBlocks', this.pageBlocks)
+  },
+
   methods: {
-    handlePageData({ sections, order, fontFamily }) {
-      console.log('>>>', sections, order, fontFamily)
+    handlePageData({ sections, order }) {
       this.contractDetails[order] = {
-        sections,
-        fontFamily
+        sections
       }
     },
 
     handleImage({ order, image }) {
+      console.log('image', order, image)
       const pageDetails = { ...this.contractDetails[order], image }
       this.$set(this.contractDetails, order, pageDetails)
       this.setProgress()

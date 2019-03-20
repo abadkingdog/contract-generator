@@ -2,54 +2,18 @@
   <div class="ui basic segment setting-form">
     <h2 class="ui inverted header setting-header">Settings</h2>
     <div class="ui form inverted">
-      <div class="field fonts-select">
-        <div class="pull-right">
-          <div class="ui checkbox">
-            <input
-              id="allFamilies"
-              v-model="cbxAllFamily"
-              name="allFamilies"
-              type="checkbox"
-            >
-            <label for="allFamilies">Select all</label>
-          </div>
-        </div>
-        <label for="valueFamilyId">Font family</label>
-        <multiselect
-          v-if="showFamilySelect"
-          id="valueFamilyId"
-          v-model="valueFamily"
-          :clear-on-select="false"
-          :close-on-select="false"
-          :multiple="true"
-          :options="optionsFamily"
-          placeholder="Select Font Family"
+      <template v-for="(item, key) in sectionSettings">
+        <setting-form-multi-choice
+          :id="item.id"
+          :key="key"
+          :placeholder="item.placeholder"
+          :label="item.label"
+          :default-value="item.defaultValue"
+          :options="item.options"
+          :cbx-id="item.cbxId"
+          @onChange="handleSectionChange"
         />
-      </div>
-      <div class="field fonts-select">
-        <div class="pull-right">
-          <div class="ui checkbox">
-            <input
-              id="allSizes"
-              v-model="cbxAllSizes"
-              name="allSizes"
-              type="checkbox"
-            >
-            <label for="allSizes">Select all</label>
-          </div>
-        </div>
-        <label for="valueSizeId">Font size</label>
-        <multiselect
-          v-if="showSizeSelect"
-          id="valueSizeId"
-          v-model="valueSize"
-          :clear-on-select="false"
-          :close-on-select="false"
-          :multiple="true"
-          :options="optionsSizes"
-          placeholder="Select Font Size"
-        />
-      </div>
+      </template>
       <div class="field">
         <label for="pagesCountId">Pages</label>
         <input
@@ -58,6 +22,14 @@
           type="number"
           min="1"
         >
+      </div>
+      <div class="field">
+        <label for="sectionsConfigId">Page sections</label>
+        <textarea
+          id="sectionsConfigId"
+          v-model="sectionsConfig"
+          rows="3"
+        ></textarea>
       </div>
       <div class="ui divider"></div>
       <button
@@ -88,66 +60,69 @@
 </template>
 
 <script>
-import Multiselect from 'vue-multiselect'
-import { FONT_LIST, FONT_SIZES } from '@/constants/fonts'
-import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from '@/constants/settings'
+import { mapActions, mapState } from 'vuex'
+import SettingFormMultiChoice from './SettingFormMultiChoice.vue'
+import { SECTION_SETTINGS } from '@/constants/settings'
 
 export default {
   name: 'SettingForm',
   components: {
-    Multiselect
+    SettingFormMultiChoice
   },
 
   props: {
-    disabled: Boolean,
-    debugMode: Boolean
+    disabled: Boolean
   },
 
   data: () => ({
     pagesCount: 1,
-    optionsFamily: FONT_LIST,
-    valueFamily: [DEFAULT_FONT],
-    optionsSizes: FONT_SIZES,
-    valueSize: [DEFAULT_FONT_SIZE],
-    cbxDebug: true,
-    cbxAllFamily: false,
-    cbxAllSizes: false
+    sectionsConfig: [],
+    sectionSettings: Object.values(SECTION_SETTINGS),
+    cbxDebug: true
   }),
 
   mounted() {
     this.cbxDebug = this.debugMode
-  },
-
-  computed: {
-    showFamilySelect() {
-      return this.optionsFamily.length
-    },
-    showSizeSelect() {
-      return this.optionsSizes.length
-    }
+    this.pagesCount = this.page.count
+    this.sectionsConfig = this.page.sections.join(',')
   },
 
   methods: {
+    ...mapActions('settings', [
+      'changeSectionSettings',
+      'setPagesCount',
+      'setSectionsConfig',
+      'toggleDebugMode'
+    ]),
+
     handleSubmit() {
-      this.$emit('update', {
-        pages: this.pagesCount,
-        fontFamilies: this.valueFamily,
-        fontSizes: this.valueSize
-      })
+      this.$emit('generate')
+    },
+
+    handleSectionChange({ id, value }) {
+      this.changeSectionSettings({ id, value })
     }
   },
 
+  computed: {
+    ...mapState('settings', [
+      'page',
+      'debugMode'
+    ])
+  },
+
   watch: {
-    cbxAllFamily(val) {
-      this.valueFamily = val && this.optionsFamily
-    },
-
-    cbxAllSizes(val) {
-      this.valueSize = val && this.optionsSizes
-    },
-
     cbxDebug(val) {
-      this.$emit('switchDebugMode', val)
+      this.toggleDebugMode(val)
+      // this.$emit('switchDebugMode', val)
+    },
+
+    pagesCount(val) {
+      this.setPagesCount(parseInt(val, 10))
+    },
+
+    sectionsConfig(val) {
+      this.setSectionsConfig(val)
     }
   }
 }

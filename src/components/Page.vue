@@ -8,13 +8,16 @@
         <Switcher
           v-for="(section, index) in sections"
           :key="index"
+          :section-id="`section_${index}`"
+          :page-id="id"
           :type="section"
-          @updateData="getSectionData"
+          :settings="settings.section"
+          :variable="isVariable(index)"
         />
       </div>
-      <template v-if="debugMode && sectionsData">
+      <template v-if="settings.debugMode && resultBoxes">
         <div
-          v-for="value in sectionsData"
+          v-for="value in resultBoxes"
           :key="value.id"
           :style="bbstyles(value.coords, value.type)"
           class="bounded-box"
@@ -22,26 +25,27 @@
         </div>
       </template>
     </div>
-    <div v-if="debugMode" class="metadata">
+    <div v-if="settings.debugMode" class="metadata">
       <img
         v-if="image"
         :src="image.url"
         :alt="image.name"
         class="preview"
       >
-      <pre><code>{{ configuredStyles }}</code></pre>
-      <p><strong>SectionsData:</strong></p>
-      <pre><code>{{ sectionsData }}</code></pre>
+      <template v-if="true">
+        <p><strong>SectionsData:</strong></p>
+        <pre><code>{{ resultBoxes }}</code></pre>
+      </template>
     </div>
   </div>
 </template>
 
 <script>
-import shuffle from 'lodash/shuffle'
+import random from 'lodash/random'
+import { mapActions, mapState } from 'vuex'
 import coordMixin from '@/mixins/coords'
 import htmlToImageMixin from '@/mixins/htmlToImage'
-import { SECTION_STYLE } from '@/constants/sections'
-import { DEFAULT_FONT } from '@/constants/settings'
+import { SECTION_STYLE, MAX_VARIABLE_BLOCKS } from '@/constants/sections'
 import Switcher from './Switcher'
 
 export default {
@@ -53,119 +57,84 @@ export default {
   },
 
   props: {
+    id: { type: String, default: '0' },
     sections: { type: Array, default: () => ([]) },
     order: { type: Number, default: 1 },
-    settings: {
-      type: Object,
-      default: () => ({
-        fontFamilies: () => ([]),
-        fontSizes: () => ([])
-      })
-    },
     updatePageData: { type: Function, default: () => {} },
-    debugMode: { type: Boolean, default: false },
     imageUploadStatus: { type: String, default: '' }
   },
 
   data: () => ({
-    selectedFF: [{ name: DEFAULT_FONT }],
-    selectedFZ: [null],
-    sectionsData: [],
-    sectionBoundedBoxes: []
+    sectionsData: []
   }),
 
   computed: {
+    ...mapState([
+      'settings',
+      'box'
+    ]),
+
     configuredStyles() {
       return {
-        'font-family': this.selectedFF[0],
-        'font-size': this.selectedFZ[0]
+        // TODO: styles for page
       }
     },
-  },
 
-  mounted() {
-    this.selectedFF = shuffle(this.settings.fontFamilies)
-    this.selectedFZ = shuffle(this.settings.fontSizes)
+    resultBoxes() {
+      const page = this.box.result.find(o => o.pageId === this.id)
+
+      return page && page.sections
+    },
+
+    variableIndexes() {
+      const len = this.sections.length
+      const arr = []
+      for (let i = 0; i < MAX_VARIABLE_BLOCKS; i++) {
+        arr.push(random(0, len))
+      }
+
+      return arr
+    }
   },
 
   methods: {
-    /*
-      create list of data
-    // @this.box - coords of page
-    // @sectionCoords - coords of segment
-    */
-    updateBoundedBox(pageBox) {
-      this.updateSectionBoundedBox({ pageBox })
-    },
-
-    updateSectionBoundedBox({ pageBox }) {
-      if (!pageBox) return
-      this.sectionsData = this.sectionBoundedBoxes.map((
-        {
-          sectionCoords: {
-            top,
-            right,
-            bottom,
-            left,
-            height,
-            width
-          },
-          id,
-          type
-        }
-      ) => {
-        let coords = {
-          top: top - pageBox.top,
-          bottom: bottom - pageBox.top,
-          right: right - pageBox.left,
-          left: left - pageBox.left,
-          height,
-          width,
-        }
-
-        const MAX_TOP = 1045
-        if (coords.top > MAX_TOP) return
-        if (coords.bottom > MAX_TOP) {
-          coords = {
-            ...coords,
-            bottom: MAX_TOP,
-            height: MAX_TOP - coords.top
-          }
-        }
-
-        if (coords.height < 16) return
-        // eslint-disable-next-line consistent-return
-        return { id, type, coords }
-      })
-    },
-
-    getSectionData(params) {
-      this.sectionBoundedBoxes.push(params)
-    },
+    ...mapActions('result', [
+      // 'setPageResult',
+      'addImageToResult'
+    ]),
 
     bbstyles({ top, left, height, width }, type = 'default') {
+      const color = SECTION_STYLE[type] || SECTION_STYLE.default
       return {
         top: `${top}px`,
         left: `${left}px`,
         width: `${width}px`,
         height: `${height}px`,
-        outline: `3px solid ${SECTION_STYLE[type]}`
+        outline: `3px solid ${color}`
       }
+    },
+
+    isVariable(index) {
+      return this.variableIndexes.includes(index)
     }
   },
 
   watch: {
-    sectionsData: {
-      deep: true,
-      handler(val) {
-        this.$emit('updatePageData', { sections: val, order: this.order, ...this.configuredStyles })
-      }
-    },
+    // // TODO
+    // sectionsData: {
+    //   deep: true,
+    //   handler(val) {
+    //     this.$emit('updatePageData', { sections: val, order: this.order })
+    //     // TODO
+    //     this.setPageResult({ sections: val, order: this.order })
+    //   }
+    // },
 
     image(val) {
       if (!val) return
+      this.addImageToResult({ image: val.name, pageId: this.id, order: this.order })
       this.$emit('updateImage', { image: val.name, order: this.order })
-    },
+    }
   }
 }
 </script>

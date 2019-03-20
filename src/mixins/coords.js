@@ -1,14 +1,11 @@
+import { mapActions } from 'vuex'
+
 const coordMixin = {
-  data: () => ({
-    countedBox: {
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: 0,
-      height: 0
-    }
-  }),
+  props: {
+    id: { type: String, default: 'page_' },
+    pageId: { type: String, default: null },
+    type: { type: String, default: 'page' },
+  },
 
   mounted() {
     setTimeout(() => {
@@ -19,6 +16,10 @@ const coordMixin = {
   },
 
   methods: {
+    ...mapActions('box', [
+      'setCoords'
+    ]),
+
     getOffset(el) {
       const rect = el.getBoundingClientRect()
 
@@ -35,22 +36,13 @@ const coordMixin = {
     matchCoords() {
       const { box } = this.$refs
       if (!box) return
-      this.countedBox = this.getOffset(box)
-    }
-  },
-
-  computed: {
-    box() {
-      const { height, width } = this.countedBox
-
-      if (height < 16 || width < 10) return null
-      return this.countedBox
-    }
-  },
-
-  watch: {
-    box(val) {
-      val && this.updateBoundedBox(val)
+      const coords = this.getOffset(box)
+      this.setCoords({
+        coords,
+        boxId: this.id,
+        pageId: this.pageId,
+        type: this.type
+      })
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="list">
-    <ul>
+    <ul ref="box">
       <li v-for="item in randValue" :key="item">
         {{ lipsum.generate(5).substring(0, 100) }}
       </li>
@@ -10,6 +10,7 @@
 
 <script>
 import random from 'lodash/random'
+import coordMixin from '@/mixins/coords'
 import { ITEM_COUNT } from '@/constants/list'
 import { LoremIpsum } from '@/utils/lorem-ipsum'
 
@@ -19,6 +20,8 @@ export default {
   data: () => ({
     lipsum: new LoremIpsum()
   }),
+
+  mixins: [coordMixin],
 
   computed: {
     randValue() {

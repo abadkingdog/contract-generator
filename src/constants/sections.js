@@ -1,17 +1,3 @@
-export const SECTION_LIST = [
-  // 'header',
-  'block',
-  // 'block',
-  // 'table',
-  'table',
-  'title',
-  'paragraph',
-  'list',
-  // 'paragraph',
-  'paragraph',
-  'paragraph',
-]
-
 export const SECTION_STYLE = {
   table: 'red',
   title: 'blue',
@@ -21,19 +7,9 @@ export const SECTION_STYLE = {
   default: 'pink'
 }
 
-export const SECTION = {
-  STYLE: {
-    table: 'red',
-    title: 'blue',
-    list: 'green',
-    paragraph: 'orange',
-    block: 'purple',
-    default: 'pink'
-  },
-
-  ALIGN: [
-    'left',
-    'center',
-    'right'
-  ]
+export const CUSTOM_BLOCK_WIDTH = {
+  start: 25,
+  end: 50
 }
+
+export const MAX_VARIABLE_BLOCKS = 2

@@ -2,10 +2,8 @@
   <div class="contract">
     <div class="ui sidebar inverted vertical menu left visible">
       <setting-form
-        :disabled="isGenerating"
-        :debug-mode="debugMode"
-        @update="handleGenerate"
-        @switchDebugMode="handlerDebug"
+        :disabled="isGenerating || !boxesIsReady"
+        @generate="handleGenerate"
       >
         <div class="ui red tiny progress">
           <div class="bar" :style="{ width: progress + '%' }"></div>
@@ -13,7 +11,7 @@
         <button
           class="ui red button fluid"
           :class="{ disabled: isLoading, loading: isLoading }"
-          :disabled="isLoading"
+          :disabled="isLoading || !boxesIsReady"
           @click="handlerSubmit"
         >
           Save
@@ -26,8 +24,7 @@
           <pages
             v-if="show"
             :pages="pages"
-            :settings="settings"
-            :debug-mode="debugMode"
+            :page-blocks="pageBlocks"
             :image-upload-status="imageUploadStatus"
             :progress.sync="progress"
             @updateDetails="handleDetails"
@@ -39,15 +36,10 @@
 </template>
 
 <script>
-// import shuffle from 'lodash/shuffle'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import api from '@/utils/api'
 import Pages from '@/components/Pages'
 import SettingForm from '@/components/SettingForm'
-import { SECTION_LIST } from '@/constants/sections'
-import { DEBUG_MODE } from '@/constants/settings'
-
-const SECTIONS = SECTION_LIST // shuffle(SECTION_LIST)
 
 export default {
   name: 'Contract',
@@ -61,13 +53,12 @@ export default {
     isLoading: false,
     isReady: false,
     show: true,
-    debugMode: DEBUG_MODE,
-    pagesCount: 1,
-    settings: {
-      fontFamilies: [],
-    },
     progress: 0
   }),
+
+  mounted() {
+    this.generatePageBlocks()
+  },
 
   methods: {
     ...mapActions('logger', [
@@ -75,9 +66,20 @@ export default {
       'endLogger'
     ]),
 
+    ...mapActions('pages', [
+      'generatePageBlocks'
+    ]),
+
+    ...mapActions('result', [
+      'initResultProcess'
+    ]),
+
     handlerSubmit() {
+      this.initResultProcess()
+
       this.isLoading = true
-      this.showLogger(true)
+      // TODO:
+      // this.showLogger(true)
       // magic
     },
 
@@ -99,19 +101,12 @@ export default {
       })
     },
 
-    handleGenerate({ pages, fontFamilies, fontSizes }) {
+    handleGenerate() {
       this.resetSettings()
-      this.settings = { ...this.settings, fontFamilies, fontSizes }
-      this.pagesCount = pages
-
+      this.generatePageBlocks()
       this.$nextTick(() => {
         this.isGenerating = false
       })
-    },
-
-    handlerDebug(mode) {
-      localStorage.setItem('debugMode', !!mode)
-      this.debugMode = mode
     },
 
     handleDetails(details) {
@@ -129,21 +124,25 @@ export default {
   },
 
   computed: {
+    ...mapState('result', [
+      'isProcessing'
+    ]),
+
     pages() {
-      const pages = []
-      for (let i = 0; i < this.pagesCount; i++) {
-        pages.push({
-          id: i,
-          sections: SECTIONS
-        })
-      }
-      console.log('pages', pages)
-      return pages
+      return this.$store.state.pages.blocks
     },
 
     // uses in mixin
     imageUploadStatus() {
       return this.isLoading === true ? 'start' : ''
+    },
+
+    pageBlocks() {
+      return this.$store.state.pages.blocks
+    },
+
+    boxesIsReady() {
+      return this.$store.getters['box/isReady']
     }
   },
 

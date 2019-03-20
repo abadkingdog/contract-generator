@@ -42,6 +42,7 @@
 
 <script>
 import random from 'lodash/random'
+import coordMixin from '@/mixins/coords'
 import {
   BORDER_WIDTH,
   TD_COUNT,
@@ -53,6 +54,8 @@ import { LoremIpsum } from '@/utils/lorem-ipsum'
 
 export default {
   name: 'SectionTable',
+
+  mixins: [coordMixin],
 
   data: () => ({
     tdCount: 2,

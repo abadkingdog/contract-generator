@@ -1,13 +1,16 @@
 <template>
-  <h1>{{ title }}</h1>
+  <h1 ref="box">{{ title }}</h1>
 </template>
 
 <script>
 import random from 'lodash/random'
+import coordMixin from '@/mixins/coords'
 import { LoremIpsum } from '@/utils/lorem-ipsum'
 
 export default {
   name: 'SectionTitle',
+
+  mixins: [coordMixin],
 
   data: () => ({
     lipsum: new LoremIpsum()
