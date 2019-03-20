@@ -1,21 +1,14 @@
 import Vue from 'vue'
 import VueVirtualScroller from 'vue-virtual-scroller'
-import Toastr from 'vue-semantic-ui-toastr'
 import App from './App.vue'
+import store from '@/store'
 import '@/assets/styles/main.less'
 
 Vue.config.productionTip = false
 
 new Vue({
+  store,
   render: h => h(App),
 }).$mount('#app')
 
 Vue.use(VueVirtualScroller)
-
-Vue.use(Toastr, {
-  duration: 3000,
-  container: '.toastr-container',
-  autoshow: true,
-  html: false,
-  position: 'right top'
-})

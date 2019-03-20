@@ -1,8 +1,6 @@
+import { mapActions } from 'vuex'
 import html2canvas from 'html2canvas'
 import debounce from 'lodash/debounce'
-import EventBus from '@/utils/event-bus'
-import api from '@/utils/api'
-import { ADD_LOG } from '@/constants/events'
 
 const urlCreator = window.URL || window.webkitURL
 
@@ -16,38 +14,53 @@ const htmlToImageMixin = {
   },
 
   methods: {
+    ...mapActions('logger', [
+      'addMessage',
+    ]),
+
+    ...mapActions('result', [
+      'sendImageAction'
+    ]),
+
     getCanvasBlob(canvas) {
       return new Promise((resolve) => {
-        canvas.toBlob(blob => resolve(blob))
+        canvas.toBlob((blob) => {
+          this.addMessage({
+            message: `Page_${this.order} blob created`
+          })
+          return resolve(blob)
+        })
       })
     },
 
     async convertToImage() {
       const paperEl = this.$el.children[0]
       const canvas = await html2canvas(paperEl)
-      EventBus.$emit(ADD_LOG, { message: `Page_${this.order} canvas created` })
+      this.addMessage({
+        message: `Page_${this.order} canvas created`
+      })
       const blob = await this.getCanvasBlob(canvas)
-      EventBus.$emit(ADD_LOG, { message: `Page_${this.order} blob created` })
       const formData = new FormData()
       formData.append('imagePage', blob)
-      const filename = await this.sendImg(formData)
+      const filename = await this.sendImg(formData, this.id)
+      console.log(filename)
       this.image = {
         name: filename,
         url: urlCreator.createObjectURL(blob)
       }
     },
 
-    sendImg(img) {
-      return api.uploadImages(img).then((res) => {
+    sendImg(image, pageId) {
+      return this.sendImageAction({ image, pageId }).then((res) => {
         const { filename, message } = res
-        EventBus.$emit(ADD_LOG, {
+        this.addMessage({
           message: `Page_${this.order} ${filename} is saved successfully <br />`,
           status: 'success',
           description: message
         })
         return filename
       }).catch((e) => {
-        EventBus.$emit(ADD_LOG, {
+        this.addMessage({
           message: `Page_${this.order} __filename__ isn't saved`,
           description: e.toString(),
           status: 'error',
@@ -57,9 +70,15 @@ const htmlToImageMixin = {
     }
   },
 
+  computed: {
+    imageUploadStatus() {
+      return this.$store.state.result.isProcessing
+    }
+  },
+
   watch: {
     imageUploadStatus(val) {
-      if (val === 'start') {
+      if (val) {
         this.debouncedConvertToImage()
       }
     }

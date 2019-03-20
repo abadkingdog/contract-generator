@@ -3,6 +3,7 @@ import SectionTable from '@/components/sections/SectionTable'
 import SectionTitle from '@/components/sections/SectionTitle'
 import SectionHeader from '@/components/sections/SectionHeader'
 import SectionList from '@/components/sections/SectionList'
+import SectionDefault from '@/components/sections/SectionDefault'
 
 const sectionConfig = [
   {
@@ -25,6 +26,10 @@ const sectionConfig = [
   {
     type: 'title',
     component: SectionTitle,
+  },
+  {
+    type: 'default',
+    component: SectionDefault
   },
 ]
 

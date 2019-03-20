@@ -8,13 +8,16 @@
         <Switcher
           v-for="(section, index) in sections"
           :key="index"
+          :section-id="`section_${index}`"
+          :page-id="id"
           :type="section"
-          @updateData="getSectionData"
+          :settings="settings.section"
+          :variable="isVariable(index)"
         />
       </div>
-      <template v-if="debugMode">
+      <template v-if="settings.debugMode && resultBoxes">
         <div
-          v-for="value in sectionsData"
+          v-for="value in resultBoxes"
           :key="value.id"
           :style="bbstyles(value.coords, value.type)"
           class="bounded-box"
@@ -22,26 +25,27 @@
         </div>
       </template>
     </div>
-    <div v-if="debugMode" class="metadata">
+    <div v-if="settings.debugMode" class="metadata">
       <img
         v-if="image"
         :src="image.url"
         :alt="image.name"
         class="preview"
       >
-      <pre><code>{{ configuredStyles }}</code></pre>
-      <p><strong>SectionsData:</strong></p>
-      <pre><code>{{ sectionsData }}</code></pre>
+      <template v-if="true">
+        <p><strong>SectionsData:</strong></p>
+        <pre><code>{{ resultBoxes }}</code></pre>
+      </template>
     </div>
   </div>
 </template>
 
 <script>
-import shuffle from 'lodash/shuffle'
+import random from 'lodash/random'
+import { mapActions, mapState } from 'vuex'
 import coordMixin from '@/mixins/coords'
 import htmlToImageMixin from '@/mixins/htmlToImage'
-import { SECTION_STYLE } from '@/constants/sections'
-import { DEFAULT_FONT } from '@/constants/settings'
+import { SECTION_STYLE, MAX_VARIABLE_BLOCKS } from '@/constants/sections'
 import Switcher from './Switcher'
 
 export default {
@@ -53,88 +57,65 @@ export default {
   },
 
   props: {
+    id: { type: String, default: '0' },
     sections: { type: Array, default: () => ([]) },
     order: { type: Number, default: 1 },
-    settings: {
-      type: Object,
-      default: () => ({
-        fontFamilies: () => ({})
-      })
-    },
-    updatePageData: { type: Function, default: () => {} },
-    debugMode: { type: Boolean, default: false },
-    imageUploadStatus: { type: String, default: '' }
+    updatePageData: { type: Function, default: () => {} }
   },
 
   data: () => ({
-    selectedFF: [{ name: DEFAULT_FONT }],
     sectionsData: []
   }),
 
   computed: {
+    ...mapState([
+      'settings',
+      'box'
+    ]),
+
     configuredStyles() {
       return {
-        'font-family': this.selectedFF[0]
+        // TODO: styles for page
       }
     },
-  },
 
-  mounted() {
-    this.selectedFF = shuffle(this.settings.fontFamilies)
+    resultBoxes() {
+      const page = this.box.result.find(o => o.pageId === this.id)
+
+      return page && page.sections
+    },
+
+    variableIndexes() {
+      const len = this.sections.length
+      const arr = []
+      for (let i = 0; i < MAX_VARIABLE_BLOCKS; i++) {
+        arr.push(random(0, len))
+      }
+
+      return arr
+    }
   },
 
   methods: {
-    /*
-      create list of data
-    // @this.box - coords of page
-    // @sectionCoords - coords of segment
-    */
-    getSectionData({ sectionCoords: { top, right, bottom, left, height, width }, id, type }) {
-      let coords = {
-        top: top - this.box.top,
-        bottom: bottom - this.box.top,
-        right: right - this.box.left,
-        left: left - this.box.left,
-        height,
-        width,
-      }
-      const MAX_TOP = 1045
-      if (coords.top > MAX_TOP) return
-      if (coords.bottom > MAX_TOP) {
-        coords = {
-          ...coords,
-          bottom: MAX_TOP,
-          height: MAX_TOP - coords.top
-        }
-      }
-
-      if (coords.height < 16) return
-      this.sectionsData.push({ id, type, coords })
-    },
+    ...mapActions('result', [
+      // 'setPageResult',
+      'addImageToResult'
+    ]),
 
     bbstyles({ top, left, height, width }, type = 'default') {
+      const color = SECTION_STYLE[type] || SECTION_STYLE.default
       return {
         top: `${top}px`,
         left: `${left}px`,
         width: `${width}px`,
         height: `${height}px`,
-        outline: `3px solid ${SECTION_STYLE[type]}`
+        outline: `3px solid ${color}`
       }
+    },
+
+    isVariable(index) {
+      return this.variableIndexes.includes(index)
     }
-  },
-
-  watch: {
-    sectionsData: {
-      deep: true,
-      handler(val) {
-        this.$emit('updatePageData', { sections: val, order: this.order, fontFamily: this.selectedFF[0] })
-      }
-    },
-
-    image(val) {
-      if (!val) return
-      this.$emit('updateImage', { image: val.name, order: this.order })
-    },
   }
 }
 </script>
@@ -168,6 +149,9 @@ export default {
   .paper-content {
     height: @FORMAT_A4_HEIGHT - @FORMAT_A4_OFFSET_TOP - @FORMAT_A4_OFFSET_BOTTOM;
     overflow: hidden;
+    /*display: flex;*/
+    /*flex-direction: row;*/
+    /*flex-wrap: wrap;*/
   }
 }
 .metadata {
@@ -189,7 +173,7 @@ export default {
   position: absolute;
   z-index: 10;
   pointer-events: none;
-  background: rgba(255,255,255, 0.4);
+  /*background: rgba(255,255,255, 0.4);*/
 }
   .paper-box {
     border: 1px solid blue;

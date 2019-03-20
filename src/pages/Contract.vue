@@ -2,18 +2,16 @@
   <div class="contract">
     <div class="ui sidebar inverted vertical menu left visible">
       <setting-form
-        :disabled="isGenerating"
-        :debug-mode="debugMode"
-        @update="handleGenerate"
-        @switchDebugMode="handlerDebug"
+        :disabled="isGenerating || !boxesIsReady"
+        @generate="handleGenerate"
       >
         <div class="ui red tiny progress">
           <div class="bar" :style="{ width: progress + '%' }"></div>
         </div>
         <button
           class="ui red button fluid"
-          :class="{ disabled: isLoading, loading: isLoading }"
-          :disabled="isLoading"
+          :class="{ disabled: isProcessing, loading: isProcessing }"
+          :disabled="isProcessing || !boxesIsReady"
           @click="handlerSubmit"
         >
           Save
@@ -26,11 +24,6 @@
           <pages
             v-if="show"
             :pages="pages"
-            :settings="settings"
-            :debug-mode="debugMode"
-            :image-upload-status="imageUploadStatus"
-            :progress.sync="progress"
-            @updateDetails="handleDetails"
           />
         </div>
       </div>
@@ -39,16 +32,10 @@
 </template>
 
 <script>
-import shuffle from 'lodash/shuffle'
-import api from '@/utils/api'
+import { mapActions, mapState } from 'vuex'
+// import api from '@/utils/api'
 import Pages from '@/components/Pages'
 import SettingForm from '@/components/SettingForm'
-import EventBus from '@/utils/event-bus'
-import { SECTION_LIST } from '@/constants/sections'
-import { DEBUG_MODE } from '@/constants/settings'
-import { SHOW_LOGGER, FINISH_LOG } from '@/constants/events'
-
-const SECTIONS = shuffle(SECTION_LIST)
 
 export default {
   name: 'Contract',
@@ -59,58 +46,48 @@ export default {
 
   data: () => ({
     isGenerating: false,
-    isLoading: false,
-    isReady: false,
-    show: true,
-    debugMode: DEBUG_MODE,
-    pagesCount: 1,
-    settings: {
-      fontFamilies: [],
-    },
-    progress: 0
+    show: true
   }),
 
+  mounted() {
+    this.generatePageBlocks()
+  },
+
   methods: {
+    ...mapActions('logger', [
+      'showLogger',
+      'endLogger',
+      'clearLogger'
+    ]),
+
+    ...mapActions('pages', [
+      'generatePageBlocks'
+    ]),
+
+    ...mapActions('result', [
+      'initResultProcess',
+      'sendResult',
+      'clearResults'
+    ]),
+
     handlerSubmit() {
-      this.isLoading = true
-      EventBus.$emit(SHOW_LOGGER, true)
-      // magic
+      this.showLogger(true)
+      this.initResultProcess()
     },
 
-    async sendJSON(details) {
-      await api.uploadJSON(details).then((res) => {
-        EventBus.$emit(FINISH_LOG, { message: 'JSON is saved', status: 'success', description: res.message })
-        this.isLoading = false
-      }).catch((e) => {
-        EventBus.$emit(FINISH_LOG, { message: 'Error JSON', status: 'error' })
-        this.isLoading = false
-        throw new Error(e)
-      })
-    },
-
-    handleGenerate({ pages, fontFamilies }) {
+    handleGenerate() {
       this.resetSettings()
-      this.settings = { ...this.settings, fontFamilies }
-      this.pagesCount = pages
-
+      this.generatePageBlocks()
       this.$nextTick(() => {
         this.isGenerating = false
       })
     },
 
-    handlerDebug(mode) {
-      localStorage.setItem('debugMode', !!mode)
-      this.debugMode = mode
-    },
-
-    handleDetails(details) {
-      this.sendJSON(details)
-    },
-
     resetSettings() {
       this.isGenerating = true
-      this.progress = 0
       this.show = false
+      this.clearResults()
+      this.clearLogger()
       this.$nextTick(() => {
         this.show = true
       })
@@ -118,26 +95,39 @@ export default {
   },
 
   computed: {
+    ...mapState('result', [
+      'isProcessing',
+      'progress'
+    ]),
+
     pages() {
-      const pages = []
-      for (let i = 0; i < this.pagesCount; i++) {
-        pages.push({
-          id: i,
-          sections: SECTIONS
-        })
-      }
-      return pages
+      return this.$store.state.pages.blocks
     },
 
-    // uses in mixin
-    imageUploadStatus() {
-      return this.isLoading === true ? 'start' : ''
+    boxesIsReady() {
+      return this.$store.getters['box/isReady']
+    },
+
+    isReadyForSending() {
+      return this.$store.getters['result/isReadyForSending']
     }
   },
-
   watch: {
-    progress(val) {
-      this.isReady = val === 100
+    isReadyForSending(val) {
+      if (val) {
+        this.sendResult().then(() => {
+          this.endLogger({
+            message: 'JSON is saved successfully',
+            status: 'success'
+          })
+        }).catch((e) => {
+          this.endLogger({
+            message: 'Error JSON',
+            status: 'error'
+          })
+          throw new Error(e)
+        })
+      }
     }
   }
 }

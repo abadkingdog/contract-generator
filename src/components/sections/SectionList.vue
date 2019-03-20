@@ -11,26 +11,30 @@
 <script>
 import random from 'lodash/random'
 import coordMixin from '@/mixins/coords'
+import { ITEM_COUNT } from '@/constants/list'
 import { LoremIpsum } from '@/utils/lorem-ipsum'
 
 export default {
   name: 'SectionList',
 
-  mixins: [coordMixin],
+  data: () => ({
+    lipsum: new LoremIpsum()
+  }),
 
-  created() {
-    this.lipsum = new LoremIpsum()
-  },
+  mixins: [coordMixin],
 
   computed: {
     randValue() {
-      return random(10) + 1
+      return random(ITEM_COUNT.start, ITEM_COUNT.end)
     }
   }
 }
 </script>
 
 <style scoped>
+  .list {
+    margin-left: 15px;
+  }
   ul, ol {
     display: inline-block;
     padding-left: 0;
@@ -51,6 +55,5 @@ export default {
   ol ol, ul ol {
      list-style-type: lower-latin;
      list-style-position: inside;
-     margin-left: 15px;
   }
 </style>

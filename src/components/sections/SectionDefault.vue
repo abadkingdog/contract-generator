@@ -1,26 +1,32 @@
 <template>
-  <p ref="box">
+  <div :style="blockStyles" class="section-block">
     {{ text }}
-  </p>
+  </div>
 </template>
 
 <script>
 import random from 'lodash/random'
-import coordMixin from '@/mixins/coords'
 import { LoremIpsum } from '@/utils/lorem-ipsum'
+// import coordMixin from '@/mixins/coords'
 
 export default {
-  name: 'SectionParagraph',
+  name: 'SectionBlock',
 
-  mixins: [coordMixin],
+  // mixins: [coordMixin],
 
   data: () => ({
     lipsum: new LoremIpsum()
   }),
 
+  methods: {
+    randWidth() {
+      return random(25, 50)
+    }
+  },
+
   computed: {
     text() {
-      const randValue = random(80)
+      const randValue = random(40)
       return this.lipsum.generate(randValue)
     }
   }
@@ -28,7 +34,7 @@ export default {
 </script>
 
 <style scoped>
-a {
-  color: #42b983;
-}
+  .section-block {
+    display: inline-block;
+  }
 </style>

@@ -1,7 +1,5 @@
 <template>
-  <div class="title">
-    <h1 ref="box">{{ title }}</h1>
-  </div>
+  <h1 ref="box">{{ title }}</h1>
 </template>
 
 <script>
@@ -15,7 +13,7 @@ export default {
   mixins: [coordMixin],
 
   data: () => ({
-    lipsum: null
+    lipsum: new LoremIpsum()
   }),
 
   computed: {
@@ -23,24 +21,13 @@ export default {
       const randValue = random(7)
       return randValue > 0 ? this.lipsum.generate(randValue) : ''
     }
-  },
-
-  created() {
-    this.lipsum = new LoremIpsum()
   }
 }
 </script>
 
 <style lang="less" scoped>
-  .title {
-    padding-top: 1em;
-    padding-bottom: 1em;
-    text-align: center;
-    &:first-letter {
-      text-transform: uppercase;
-    }
-  }
   h1 {
     display: inline-block;
+    font-size: 2em;
   }
 </style>
