@@ -11,7 +11,8 @@ const state = {
   isVisible: false,
   isSaving: false,
   text: '',
-  summary: ''
+  summary: '',
+  duration: null
 }
 
 const combineMessage = ({ status, message, description }) => {
@@ -55,10 +56,12 @@ const actions = {
 const mutations = {
   SET_LOGGER_VISIBILITY(state, payload) {
     state.isVisible = payload
+    state.startTimer = new Date()
   },
 
   SET_LOGGER_FINISH(state, payload) {
     state.summary = combineMessage(payload)
+    state.duration = parseInt((new Date() - state.startTimer) / 1000, 10)
   },
 
   ADD_LOGGER_MESSAGE(state, payload) {
@@ -74,6 +77,7 @@ const mutations = {
     state.isSaving = false
     state.text = ''
     state.summary = ''
+    state.duration = null
   }
 }
 

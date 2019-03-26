@@ -35,7 +35,12 @@ const htmlToImageMixin = {
 
     async convertToImage() {
       const paperEl = this.$el.children[0]
-      const canvas = await html2canvas(paperEl)
+      const canvas = await html2canvas(paperEl, {
+        logging: false,
+        foreignObjectRendering: false,
+        width: 794,
+        height: 1123
+      })
       this.addMessage({
         message: `Page_${this.order} canvas created`
       })
@@ -43,7 +48,6 @@ const htmlToImageMixin = {
       const formData = new FormData()
       formData.append('imagePage', blob)
       const filename = await this.sendImg(formData, this.id)
-      console.log(filename)
       this.image = {
         name: filename,
         url: urlCreator.createObjectURL(blob)

@@ -14,6 +14,7 @@ const SEND_RESULT_REQUEST = 'SEND_RESULT_REQUEST'
 const SEND_RESULT_SUCCESS = 'SEND_RESULT_SUCCESS'
 const SEND_RESULT_ERROR = 'SEND_RESULT_ERROR'
 const SET_PROGRESS = 'SET_PROGRESS'
+const CLEAR_RESULT = 'CLEAR_RESULT'
 
 // initial state
 const state = {
@@ -41,7 +42,7 @@ const getters = {
   // eslint-disable-next-line arrow-body-style
   isReadyForSending: (state) => {
     // all images
-    return state.images.length > 0 && (state.details.filter(s => s.image).length === state.images.length)
+    return state.images.length > 0 && (state.details.filter(s => s.image).length === state.details.length)
   }
 }
 
@@ -50,9 +51,6 @@ const actions = {
   initResultProcess({ commit, rootState }) {
     commit(INIT_RESULT_PROCESS)
     commit(TAKE_BOXES_RESULT, rootState.box.result)
-    // get image name
-    // add to json
-    // send result
   },
 
   setPageResult({ commit }, { sections, order }) {
@@ -87,7 +85,7 @@ const actions = {
   },
 
   clearResults({ commit }) {
-    commit(SET_PROGRESS, 0)
+    commit(CLEAR_RESULT)
   }
 }
 
@@ -142,6 +140,13 @@ const mutations = {
 
   SET_PROGRESS(state, payload) {
     state.progress = payload
+  },
+
+  CLEAR_RESULT(state) {
+    state.isDone = false
+    state.images = []
+    state.details = []
+    state.progress = 0
   }
 }
 

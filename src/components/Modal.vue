@@ -8,7 +8,7 @@
             Modal Title
           </slot>
         </div>
-        <div class="scrolling content">
+        <div class="content">
           <slot name="content">
             A description can appear on the right
           </slot>
